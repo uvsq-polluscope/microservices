@@ -1,0 +1,23 @@
+{
+    "type" : "record",
+    "namespace" : "Polluscope",
+    "name" : "rawdata",
+    "fields" : [
+       { "name" : "participant_virtual_id" , "type" : "int" },
+       { "name" : "time" , "type" : "string" },
+       { "name" : "PM25" , "type" : "float" },
+       { "name" : "PM10" , "type" : "float" },
+       { "name" : "PM1" , "type" : "float" },
+       { "name" : "Temperature" , "type" : "float" },
+       { "name" : "Humidity" , "type" : "float" },
+       { "name" : "NO2" , "type" : "float" },
+       { "name" : "BC" , "type" : "float" },
+       { "name" : "vitesse" , "type" : "float" },
+       { "name" : "activity" , "type" : "string" },
+       { "name" : "event" , "type" : "string" }
+    ]
+ }
+
+ //participant_virtual_id', 'time', 'PM2.5', 'PM10', 'PM1.0',
+ //'Temperature', 'Humidity', 'NO2', 'BC', 'vitesse(m/s)', 'activity',
+ //'event']
