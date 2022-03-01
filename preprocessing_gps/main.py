@@ -1,20 +1,19 @@
-from flask import Flask
-from flask_restful import Resource, Api, reqparse, abort, marshal, fields
+
 
 import pandas as pd
 # from dependancies.file import *
 
 
-# Initialize Flask
-app = Flask(__name__)
-api = Api(app)
+from fastapi import FastAPI
 
-@app.route("/")
+app = FastAPI()
+
+@app.get("/")
 def runing():
     return "Hi preprocessing_gps microserivce is runing"
 
 
-@app.route("/preprocessing_gps")
+@app.get("/preprocessing_gps")
 def preprocessing_gps():
     df = get_data()
     

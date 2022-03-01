@@ -1,20 +1,18 @@
-from flask import Flask
-from flask_restful import Resource, Api, reqparse, abort, marshal, fields
+
 
 import pandas as pd
 # from dependancies.file import *
 
+from fastapi import FastAPI
 
-# Initialize Flask
-app = Flask(__name__)
-api = Api(app)
+app = FastAPI()
 
-@app.route("/")
+@app.get("/")
 def runing():
     return "Hi classification microserivce is runing"
 
 
-@app.route("/classification")
+@app.get("/classification")
 def classification():
     df = get_data()
     

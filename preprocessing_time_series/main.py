@@ -1,23 +1,20 @@
-from flask import Flask
-from flask_restful import Resource, Api, reqparse, abort, marshal, fields
 
 from dependancies.preprocessign import *
-import pandas as pd
-
 from sqlalchemy import Table, Column, MetaData, Integer, Computed
 from sqlalchemy import create_engine
 
+import pandas as pd
+from fastapi import FastAPI
 
-# Initialize Flask
-app = Flask(__name__)
-api = Api(app)
+app = FastAPI()
 
-@app.route("/")
+
+@app.get("/")
 def runing():
     return "Hi preprossing microserivce is runing"
 
 
-@app.route("/preprocessing")
+@app.get("/preprocessing")
 def preprocessing():
     df = get_data()
     if 'NO2' in df.columns and len(df.dropna(subset=['NO2']))>0:
