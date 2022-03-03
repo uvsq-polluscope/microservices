@@ -1,6 +1,3 @@
-
-
-import uvicorn
 import pandas as pd
 from uuid import uuid4
 
@@ -211,14 +208,14 @@ def increment_ids(kit_id, participant_id):
     return request
 
 
-async def app(scope, receive, send):
+def app():
         db_string = "postgresql://dwaccount:password@127.0.0.1:5435/dwaccount"
         db = create_engine(db_string, echo=True)
         ids = pd.read_sql(id_request, db)
         for i in range(0,104):
             #print(ids.participant_id[i], " ", ids.kit_id[i])
             original_data = pd.read_sql(increment_ids(ids.kit_id[i],ids.participant_id[i]), db)
-            print(original_data.columns)
+            #print(original_data.columns)
             for ind in original_data.index:
                 #producer.poll(0.0)
                 msg = rawdata(dict(
@@ -236,11 +233,9 @@ async def app(scope, receive, send):
                     activity=str(original_data['activity'][ind]),
                     event=str(original_data['event'][ind]) if type(original_data['event'][ind]) != type(None) else str('')                
                 ))
-            producer.produce(topic=TOPIC_NAME,key=str(uuid4()),value=msg)
-            print(f"Produced message: {msg.dict()}")
-        
-        print("\nFlushing records...")
-        producer.flush()
+                producer.produce(topic=TOPIC_NAME,key=str(uuid4()),value=msg)
+                print(f"Produced message: {msg.dict()}")
+                producer.flush()
 
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="127.0.0.1", port=5000, log_level="info")
+   app()
