@@ -17,7 +17,7 @@ class rawdata(object):
         "fields": [
             {
                 "name": "participant_virtual_id",
-                "type": "int"
+                "type": "string"
             },
             {
                 "name": "time",
@@ -106,14 +106,14 @@ class rawdata(object):
     def dict(self):
         return todict(self)
 
-    def set_participant_virtual_id(self, value: int) -> None:
+    def set_participant_virtual_id(self, value: str) -> None:
 
-        if isinstance(value, int):
+        if isinstance(value, str):
             self.participant_virtual_id = value
         else:
-            raise TypeError("field 'participant_virtual_id' should be type int")
+            raise TypeError("field 'participant_virtual_id' should be type str")
 
-    def get_participant_virtual_id(self) -> int:
+    def get_participant_virtual_id(self) -> str:
 
         return self.participant_virtual_id
 
