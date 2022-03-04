@@ -220,7 +220,7 @@ def app():
                 #producer.poll(0.0)
                 msg = rawdata(dict(
                     #Handle the case with alphanumeric id_number
-                    participant_virtual_id=int(original_data['participant_virtual_id'][ind]),
+                    participant_virtual_id=str(original_data['participant_virtual_id'][ind]),
                     time=str(original_data['time'][ind]) if type(original_data['time'][ind]) != type(None) else str(''),
                     PM25=float(original_data['PM2.5'][ind]) if type(original_data['PM2.5'][ind]) != type(None) else float(0.0),
                     PM10=float(original_data['PM10'][ind]) if type(original_data['PM10'][ind]) != type(None) else float(0.0),
@@ -231,7 +231,7 @@ def app():
                     BC=float(original_data['BC'][ind]) if type(original_data['BC'][ind]) != type(None) else float(0.0),
                     vitesse=float(original_data['vitesse(m/s)'][ind]) if type(original_data['vitesse(m/s)'][ind]) != type(None) else float(0.0),
                     activity=str(original_data['activity'][ind]),
-                    event=str(original_data['event'][ind]) if type(original_data['event'][ind]) != type(None) else str('')                
+                    event=str(original_data['event'][ind]) if type(original_data['event'][ind]) != type(None) else str('None')                
                 ))
                 producer.produce(topic=TOPIC_NAME,key=str(uuid4()),value=msg)
                 print(f"Produced message: {msg.dict()}")
