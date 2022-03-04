@@ -2,7 +2,7 @@
 import pandas as pd
 
 
-class ConsumerRowData(): 
+class ConsumerRawData(): 
 
 
     def __init__(self, obj) -> None:
