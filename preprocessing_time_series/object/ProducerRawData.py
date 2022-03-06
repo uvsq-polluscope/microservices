@@ -12,7 +12,7 @@ class ProducerRawData(object):
     schema = """
     {
         "type": "record",
-        "namespace": "Polluscope",
+        "namespace": "object",
         "name": "ProducerRawData",
         "fields": [
             {
@@ -52,22 +52,52 @@ class ProducerRawData(object):
                 "type": "float"
             },
             {
-                "name": "vitesse",
-                "type": "float"
-            },
-            {
                 "name": "activity",
                 "type": "string"
             },
             {
                 "name": "event",
                 "type": "string"
+            },
+            {
+                "name": "imputed_NO2",
+                "type": "boolean"
+            },
+            {
+                "name": "imputed_temperature",
+                "type": "boolean"
+            },
+            {
+                "name": "imputed_humidity",
+                "type": "boolean"
+            },
+            {
+                "name": "imputed_PM1",
+                "type": "boolean"
+            },
+            {
+                "name": "imputed_PM10",
+                "type": "boolean"
+            },
+            {
+                "name": "imputed_PM25",
+                "type": "boolean"
+            },
+            {
+                "name": "imputed_BC",
+                "type": "boolean"
+            },
+            {
+                "name": "Speed",
+                "type": "float"
             }
+           
+         
         ]
     }
     """
 
-    def __init__(self, obj: Union[str, dict, 'rawdata']) -> None:
+    def __init__(self, obj: Union[str, dict, 'rawdata1']) -> None:
         if isinstance(obj, str):
             obj = json.loads(obj)
 
@@ -76,7 +106,7 @@ class ProducerRawData(object):
 
         elif not isinstance(obj, dict):
             raise TypeError(
-                f"{type(obj)} is not in ('str', 'dict', 'rawdata')"
+                f"{type(obj)} is not in ('str', 'dict', 'rawdata1')"
             )
 
         self.set_participant_virtual_id(obj.get('participant_virtual_id', None))
@@ -97,11 +127,25 @@ class ProducerRawData(object):
 
         self.set_BC(obj.get('BC', None))
 
-        self.set_vitesse(obj.get('vitesse', None))
-
         self.set_activity(obj.get('activity', None))
 
         self.set_event(obj.get('event', None))
+        
+        self.set_imputed_NO2(obj.get('imputed_NO2', None))
+        
+        self.set_event(obj.get('imputed_temperature', None))
+        
+        self.set_imputed_temperature(obj.get('imputed_humidity', None))
+        
+        self.set_imputed_PM1(obj.get('imputed_PM1', None))
+        
+        self.set_imputed_PM10(obj.get('imputed_PM10', None))
+        
+        self.set_imputed_PM25(obj.get('imputed_PM25', None))
+        
+        self.set_imputed_BC(obj.get('imputed_BC', None))
+        
+        self.set_Speed(obj.get('Speed', None))
 
     def dict(self):
         return todict(self)
@@ -204,18 +248,7 @@ class ProducerRawData(object):
     def get_BC(self) -> float:
 
         return self.BC
-
-    def set_vitesse(self, value: float) -> None:
-
-        if isinstance(value, float):
-            self.vitesse = value
-        else:
-            raise TypeError("field 'vitesse' should be type float")
-
-    def get_vitesse(self) -> float:
-
-        return self.vitesse
-
+        
     def set_activity(self, value: str) -> None:
 
         if isinstance(value, str):
@@ -237,6 +270,93 @@ class ProducerRawData(object):
     def get_event(self) -> str:
 
         return self.event
+    
+    def set_imputed_NO2(self, value: bool) -> None:
+
+        if isinstance(value, bool):
+            self.imputed_NO2 = value
+        else:
+            raise TypeError("field 'imputed_NO2' should be type bool")
+
+    def get_imputed_NO2(self) -> bool:
+
+        return self.imputed_NO2
+    def set_imputed_temperature(self, value: bool) -> None:
+
+        if isinstance(value, bool):
+            self.imputed_temperature = value
+        else:
+            raise TypeError("field 'imputed_NO2' should be type bool")
+
+    def get_imputed_temperature(self) -> bool:
+
+        return self.imputed_temperature
+
+    def set_imputed_humidity(self, value: bool) -> None:
+
+        if isinstance(value, bool):
+            self.imputed_humidity = value
+        else:
+            raise TypeError("field 'imputed_humidity' should be type bool")
+
+    def get_imputed_humidity(self) -> bool:
+
+        return self.imputed_humidity
+    
+    def set_imputed_PM1(self, value: bool) -> None:
+
+        if isinstance(value, bool):
+            self.imputed_PM1 = value
+        else:
+            raise TypeError("field 'imputed_humidity' should be type bool")
+
+    def get_imputed_PM1(self) -> bool:
+
+        return self.imputed_PM1
+    
+    def set_imputed_PM10(self, value: bool) -> None:
+
+        if isinstance(value, bool):
+            self.imputed_PM10 = value
+        else:
+            raise TypeError("field 'imputed_PM10' should be type bool")
+
+    def get_imputed_PM10(self) -> bool:
+
+        return self.imputed_PM10
+
+    def set_imputed_PM25(self, value: bool) -> None:
+
+        if isinstance(value, bool):
+            self.imputed_PM25 = value
+        else:
+            raise TypeError("field 'imputed_PM25' should be type str")
+
+    def get_imputed_PM25(self) -> bool:
+
+        return self.imputed_PM25
+    
+    def set_imputed_BC(self, value: bool) -> None:
+
+        if isinstance(value, bool):
+            self.imputed_BC = value
+        else:
+            raise TypeError("field 'imputed_BC' should be type str")
+
+    def get_imputed_BC(self) -> bool:
+
+        return self.imputed_BC
+
+    def set_Speed(self, value: float) -> None:
+
+        if isinstance(value, float):
+            self.Speed = value
+        else:
+            raise TypeError("field 'Speed' should be type str")
+
+    def get_Speed(self) -> float:
+
+        return self.Speed
 
     def serialize(self) -> None:
         return json.dumps(self, default=default_json_serialize)
