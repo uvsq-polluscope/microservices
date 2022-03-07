@@ -1,8 +1,8 @@
 
 import pandas as pd
+from datetime import datetime
 
-
-class ConsumerRawData(): 
+class ConsumerRawData(object): 
 
 
     def __init__(self, obj) -> None:
@@ -35,7 +35,7 @@ class ConsumerRawData():
     def dict(self):
         return todict(self)
 
-    def set_participant_virtual_id(self, value: instrt) -> None:
+    def set_participant_virtual_id(self, value: int) -> None:
 
         if isinstance(value, str):
             self.participant_virtual_id = value
@@ -49,11 +49,12 @@ class ConsumerRawData():
     def set_time(self, value: str) -> None:
 
         if isinstance(value, str):
-            self.time = value
+            dateTime= datetime.strptime(value.replace("+00:00",""),'%Y-%m-%d %H:%M:%S')
+            self.time = dateTime
         else:
             raise TypeError("field 'time' should be type str")
 
-    def get_time(self) -> str:
+    def get_time(self) -> datetime:
 
         return self.time
 

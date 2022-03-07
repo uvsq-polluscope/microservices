@@ -1,9 +1,11 @@
 
 #import locale file
 from ast import Delete, Pass
+from msilib.schema import Error
 from dependancies.preprocessign import *
 from object.ConsumerRawData import ConsumerRawData
 from object.ProducerRawData import ProducerRawData
+from uuid import uuid4
 
 from object.helpers import todict
 
@@ -27,7 +29,7 @@ app = FastAPI()
 
 # kafka consumer config
 KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
-TOPIC_NAME_CONSUME = "RAWDATA"
+TOPIC_NAME_CONSUME = "rawdata"
 
 schema_registry_client = SchemaRegistryClient({"url": "http://localhost:8085"})
 consumer_conf = {"bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
@@ -39,9 +41,9 @@ consumer_conf = {"bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
                  "auto.offset.reset": "earliest"}
 
 consumer = DeserializingConsumer(consumer_conf)
-consumer.subscribe([TOPIC_NAME_CONSUME])
+consumer.subscribe(["rawdata"])
 
-TOPIC_NAME_PRODUCE = "PREPROCESSING"
+TOPIC_NAME_PRODUCE = "ProducerRawData"
 
 # --- Producing part ---
 
@@ -63,13 +65,17 @@ def runing():
 
 @app.get("/preprocessing")
 def preprocessing():
-    try: 
+        print("hello")
         # Dict contain data for each participant 
         data ={}
         # Lestener consumer kafka
         while True:
             try:
-                msg = consumer.poll(1.0)
+                try: 
+                    msg = consumer.poll(1.0)
+                except : 
+                    return "plz create RAWDATA TOPIC"
+
                 if msg is None:
                     continue
                 message = msg.value()
@@ -81,7 +87,7 @@ def preprocessing():
                         data.get(rowdata.get_participant_virtual_id()).append(rowdata)
                     else : 
                         data[rowdata.get_participant_virtual_id()] = [rowdata]
-                    print(f"Consumed message: {message}")
+                    #print(f"Consumed message: {message}")
                 # check if the number of values is reached
                 key = rate_done(data)
 
@@ -99,15 +105,14 @@ def preprocessing():
         consumer.close()
 
         return True
-    except: 
-        return "Erreur"
+
 
 # TODO:: send this function to other file helper
-# TODO:: add get_df method
               
 def rate_done(data): 
     for key in data.keys():
         if (len(data.get(key)) == 60) : 
+            print("rate done")
             return key
         else : 
             return "No"
@@ -118,11 +123,11 @@ def save_data(df) :
                 msg = ProducerRawData(dict(
                     #Handle the case with alphanumeric id_number
                     participant_virtual_id=str(df['participant_virtual_id'][ind]),
-                    time=str(df['time'][ind]) if type(original_data['time'][ind]) != type(None) else str(''),
+                    time=str(df['time'][ind]) if type(df['time'][ind]) != type(None) else str(''),
                     PM25=float(df['PM2.5'][ind]) if type(df['PM2.5'][ind]) != type(None) else float(0.0),
                     PM10=float(df['PM10'][ind]) if type(df['PM10'][ind]) != type(None) else float(0.0),
                     PM1=float(df['PM1.0'][ind]) if type(df['PM1.0'][ind]) != type(None) else float(0.0),
-                    Temperature=float(original_data['Temperature'][ind]) if type(df['Temperature'][ind]) != type(None) else float(0.0),
+                    Temperature=float(df['Temperature'][ind]) if type(df['Temperature'][ind]) != type(None) else float(0.0),
                     Humidity=float(df['Humidity'][ind]) if type(df['Humidity'][ind]) != type(None) else float(0.0),
                     NO2=float(df['NO2'][ind]) if type(df['NO2'][ind]) != type(None) else float(0.0),
                     BC=float(df['BC'][ind]) if type(df['BC'][ind]) != type(None) else float(0.0),
@@ -137,17 +142,33 @@ def save_data(df) :
                     imputed_BC=str(df['imputed BC'][ind]) if type(df['imputed BC'][ind]) != type(None) else bool(False),
                     Speed=float(df['Speed'][ind]) if type(df['Speed'][ind]) != type(None) else float(0.0)
                 ))
+                print(msg.imputed_PM25)
                 producer.produce(topic=TOPIC_NAME_PRODUCE,key=str(uuid4()),value=msg)
                 print(f"Produced message: {msg.dict()}")
                 producer.flush()
 
 def get_df(l) : 
+    print("generate dataframe")
     # from list of object to dataframe
-    pass
+    data = pd.DataFrame([],columns =['participant_virtual_id', 'time', 'PM2.5', 'PM10', 'PM1.0',
+       'Temperature', 'Humidity', 'NO2', 'BC', 'vitesse(m/s)', 'activity',
+       'event'] )
+    for elm in l : 
+        print(elm.get_PM25())
+        data = data.append(elm.__dict__, ignore_index=True)
+        data["PM2.5"] = data["PM25"]
+        data["PM1.0"] = data["PM10"]
+        data["vitesse(m/s)"] = data["vitesse"]
+        del data["PM25"]
+        del data["PM10"]
+        del data["vitesse"]
+
+    return data
 
 def run(df): 
     # run preprocessing algo
     try: 
+        print(df.head())
         if 'NO2' in df.columns and len(df.dropna(subset=['NO2']))>0:
             for j in range(0,3):
                 df.loc[ df.dropna(subset=['NO2'])['NO2'].first_valid_index(), 'NO2'] = np.nan

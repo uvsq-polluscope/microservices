@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-from data_operations import *
+from dependancies.data_operations import *
 
 
 
@@ -81,6 +81,7 @@ def data_pre_processing(data,columnNames=["Temperature"],min_threshold={"Tempera
         parameters.append("PM1.0")
         df_PM1=df_PM1[["time","PM1.0"]]
     if len(df.dropna(subset=["PM2.5"]))>0:
+        print("herrrrr01")
         new_df,indices,aggregation,avg_map=spikes_detection_validation_with_changes_negative_replaced_by_abs(df,columnNames,"PM2.5",min_threshold=min_threshold["PM2.5"],max_threshold=max_threshold["PM2.5"],window_size=10,interval=2,show_plot=False)
         df_PM25=mean_peaks_removing_all_peaks_negative_replaced_by_abs(df,"PM2.5",indices,show=False)
         parameters.append("PM2.5")
@@ -110,6 +111,7 @@ def data_pre_processing(data,columnNames=["Temperature"],min_threshold={"Tempera
             df_new=pd.merge(df_new,df_PM1,on="time",how="outer")
         
         if len(df.dropna(subset=["PM2.5"]))>0:
+            print("herrrrrr2")
             df_new=pd.merge(df_new,df_PM25,on="time",how="outer")
         
         if len(df.dropna(subset=["PM10"]))>0:
@@ -121,6 +123,7 @@ def data_pre_processing(data,columnNames=["Temperature"],min_threshold={"Tempera
         cols.pop(cols.index("event"))
         df_new=df_new[cols+["activity","event"]]        
         #data imputation
+        print(cols)
         df_new = impute_limit(df_new, method = 2,parameters=parameters)
         return df_new
     else:

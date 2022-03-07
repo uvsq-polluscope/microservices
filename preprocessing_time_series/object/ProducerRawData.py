@@ -3,7 +3,7 @@
 """ avro python class for file: rawdata """
 
 import json
-from helpers import default_json_serialize, todict
+from object.helpers import default_json_serialize, todict
 from typing import Union
 
 
@@ -279,7 +279,7 @@ class ProducerRawData(object):
             raise TypeError("field 'imputed_NO2' should be type bool")
 
     def get_imputed_NO2(self) -> bool:
-
+        
         return self.imputed_NO2
     def set_imputed_temperature(self, value: bool) -> None:
 
