@@ -33,7 +33,7 @@ from plotly.subplots import make_subplots
 from statistics import mean
 from plotly.subplots import make_subplots
 import os
-from model_training import *
+from dependancies.model_training import *
 import matplotlib.patches as mpatches
 
 

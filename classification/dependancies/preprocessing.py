@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-from data_operations import *
+from dependancies.data_operations import *
 
 
 

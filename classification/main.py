@@ -38,13 +38,13 @@ consumer_conf = {"bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
                  "value.deserializer": AvroDeserializer(schema_str=None,  # the schema should be fetched from the registry
                                                         schema_registry_client=schema_registry_client
                                                 ),
-                 "group.id": "classification",
+                 "group.id": "cccc",
                  "auto.offset.reset": "earliest"}
 
 consumer = DeserializingConsumer(consumer_conf)
-consumer.subscribe(["rawdata"])
+consumer.subscribe(["ProducerRawData"])
 
-TOPIC_NAME_PRODUCE = "CLASSIFICATION"
+TOPIC_NAME_PRODUCE = "classificationTopic"
 
 # --- Producing part ---
 
@@ -71,15 +71,15 @@ def classification():
         # Lestener consumer kafka
         while True:
             try:
-                try: 
-                    msg = consumer.poll(0.0)
-                except : 
-                    return "plz create RAWDATA TOPIC"
+                msg = consumer.poll(0.0)
 
                 if msg is None:
                     continue
                 message = msg.value()
+
                 if message is not None:
+                    print(f"Consumed message: {message}")
+
                     # cast data to consumer object
                     rowdata = ConsumerRawData(message)
                     # check if participant_virtual_id exist in data else create it
@@ -87,7 +87,6 @@ def classification():
                         data.get(rowdata.get_participant_virtual_id()).append(rowdata)
                     else : 
                         data[rowdata.get_participant_virtual_id()] = [rowdata]
-                    #print(f"Consumed message: {message}")
                 # check if the number of values is reached
                 key = rate_done(data)
 
@@ -112,19 +111,24 @@ def classification():
 def save_data(df): 
 
     print("begin save")
+    print(df)
     for ind in df.index:
                 #producer.poll(0.0)
+                print("h-------------------------")
+                print(str(df['timestamp'][ind]))
                 msg = ProducerRawData(dict(
                     #Handle the case with alphanumeric id_number
                     participant_virtual_id=str(df['participant_virtual_id'][ind]),
-                    timestamp=str(df['timestamp'][ind]) if type(df['timestamp'][ind]) != type(None) else str(''),
+                    time=str(df['timestamp'][ind]) if type(df['timestamp'][ind]) != type(None) else str(''),
                     activity=str(df['activity'][ind]),
                 ))
+                print(msg.get_time())
                 producer.produce(topic=TOPIC_NAME_PRODUCE,key=str(uuid4()),value=msg)
                 print(f"Produced message: {msg.dict()}")
                 producer.flush()
 
 def get_df(l): 
+    print("get data df")
     # from list of object to dataframe
     data = pd.DataFrame([],columns =['participant_virtual_id', 'time', 'PM25', 'PM10', 'PM1',
        'Temperature', 'Humidity', 'NO2', 'BC', 'Speed', 'activity',
@@ -137,17 +141,18 @@ def get_df(l):
     data["PM1.0"] = data["PM1"]
     del data["PM25"]
     del data["PM1"]
-    return True
+    return data
 
 def rate_done(data): 
+    print("rate done")
     for key in data.keys():
         if (len(data.get(key)) == 60) : 
-            print("rate done")
             return key
         else : 
             return "No"
 
 def run(df,id_p): 
-    
+    print("run")
+    print(df.head())
     d = classification_v1(df, id_p)
-    return True
+    return d

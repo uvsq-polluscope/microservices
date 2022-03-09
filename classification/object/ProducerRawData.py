@@ -20,7 +20,7 @@ class ProducerRawData(object):
                 "type": "string"
             },
             {
-                "name": "timestamp",
+                "name": "time",
                 "type": "string"
             },
             {
@@ -46,7 +46,7 @@ class ProducerRawData(object):
 
         self.set_participant_virtual_id(obj.get('participant_virtual_id', None))
 
-        self.set_timestamp(obj.get('timestamp', None))
+        self.set_time(obj.get('time', None))
 
 
 
@@ -68,14 +68,14 @@ class ProducerRawData(object):
 
         return self.participant_virtual_id
 
-    def set_timestamp(self, value: str) -> None:
+    def set_time(self, value: str) -> None:
 
         if isinstance(value, str):
             self.time = value
         else:
             raise TypeError("field 'time' should be type str")
 
-    def get_timestamp(self) -> str:
+    def get_time(self) -> str:
 
         return self.time
 

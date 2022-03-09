@@ -33,7 +33,7 @@ import seaborn as sns
 from sklearn.preprocessing import MinMaxScaler
 from imblearn.under_sampling import RandomUnderSampler
 from statistics import mean
-from preprocessing import *
+from dependancies.preprocessing import *
 
 
 

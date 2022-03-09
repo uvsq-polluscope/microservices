@@ -14,7 +14,7 @@ import datetime as dt
 import matplotlib.pyplot as plt
 from sqlalchemy import create_engine
 from pathlib import Path
-from db_connection_context import get_pollutants, get_str_of_id
+from dependancies.db_connection_context import get_pollutants, get_str_of_id
 from math import radians, cos, sin, asin, sqrt
 #%matplotlib notebook
 

@@ -29,7 +29,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import RepeatedStratifiedKFold
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.utils import shuffle
-from data_preparations import *
+from dependancies.data_preparations import *
 
 
 
