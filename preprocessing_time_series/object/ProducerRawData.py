@@ -133,9 +133,9 @@ class ProducerRawData(object):
         
         self.set_imputed_NO2(obj.get('imputed_NO2', None))
         
-        self.set_event(obj.get('imputed_temperature', None))
+        self.set_imputed_temperature(obj.get('imputed_temperature', None))
         
-        self.set_imputed_temperature(obj.get('imputed_humidity', None))
+        self.set_imputed_humidity(obj.get('imputed_humidity', None))
         
         self.set_imputed_PM1(obj.get('imputed_PM1', None))
         
@@ -152,7 +152,7 @@ class ProducerRawData(object):
 
     def set_participant_virtual_id(self, value: str) -> None:
 
-        if isinstance(value, int):
+        if isinstance(value, str):
             self.participant_virtual_id = value
         else:
             raise TypeError("field 'participant_virtual_id' should be type int")
@@ -261,7 +261,10 @@ class ProducerRawData(object):
         return self.activity
 
     def set_event(self, value: str) -> None:
-
+        print("--------------------")
+        print(isinstance(value, bool))
+        print(value)
+        print(type(value))
         if isinstance(value, str):
             self.event = value
         else:
@@ -272,6 +275,7 @@ class ProducerRawData(object):
         return self.event
     
     def set_imputed_NO2(self, value: bool) -> None:
+    
 
         if isinstance(value, bool):
             self.imputed_NO2 = value

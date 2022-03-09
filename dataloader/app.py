@@ -1,5 +1,4 @@
 import pandas as pd
-from uuid import uuid4
 
 from sqlalchemy import Table, Column, MetaData, Integer, Computed
 from sqlalchemy import create_engine
@@ -8,6 +7,7 @@ from confluent_kafka import DeserializingConsumer, SerializingProducer
 from confluent_kafka.schema_registry import SchemaRegistryClient
 from confluent_kafka.schema_registry.avro import AvroDeserializer, AvroSerializer
 from confluent_kafka.serialization import StringDeserializer, StringSerializer
+from uuid import uuid4
 
 from helpers import todict
 from Polluscope.rawdata import rawdata
