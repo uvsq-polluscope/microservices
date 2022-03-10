@@ -31,6 +31,7 @@ app = FastAPI()
 # kafka consumer config  "localhost:9092"
 KAFKA_BOOTSTRAP_SERVERS = os.environ['KAFKA_BOOTSTRAP_SERVERS']
 TOPIC_NAME_CONSUME = "ProducerRawData"
+# http://localhost:8085 SCHEMA_REGISTRY_CLIENT
 
 schema_registry_client = SchemaRegistryClient({"url": os.environ['SCHEMA_REGISTRY_CLIENT']})
 consumer_conf = {"bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
