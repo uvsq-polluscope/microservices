@@ -1,5 +1,7 @@
 
 import pandas as pd
+import json
+from helpers import default_json_serialize, todict
 from datetime import datetime
 
 
@@ -8,6 +10,9 @@ class ConsumerRawDataGPS(object):
     def __init__(self, obj) -> None:
 
         self.set_id(obj.get('id', None))
+
+        self.set_participant_virtual_id(
+            obj.get('participant_virtual_id', None))
 
         self.set_tablet_id(obj.get('tablet_id', None))
 
@@ -76,6 +81,18 @@ class ConsumerRawDataGPS(object):
     def get_id(self) -> int:
 
         return self.id
+
+    def set_participant_virtual_id(self, value: str) -> None:
+
+        if isinstance(value, str):
+            self.participant_virtual_id = value
+        else:
+            raise TypeError(
+                "field 'participant_virtual_id' should be type str")
+
+    def get_participant_virtual_id(self) -> str:
+
+        return self.participant_virtual_id
 
     def serialize(self) -> None:
         return json.dumps(self, default=default_json_serialize)

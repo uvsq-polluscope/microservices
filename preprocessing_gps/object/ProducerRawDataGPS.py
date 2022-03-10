@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-""" avro python class for file: rawdata """
+""" avro python class for file: ProducerRawDataGPS """
 
 import json
-#from helpers import default_json_serialize, todict
+from helpers import default_json_serialize, todict
 from typing import Union
 
 
@@ -12,19 +12,15 @@ class ProducerRawDataGPS(object):
     schema = """
     {
         "type": "record",
-        "namespace": "object",
+        "namespace": "Polluscope",
         "name": "ProducerRawDataGPS",
         "fields": [
             {
-                "name": "id",
-                "type": "int"
+                "name": "participant_virtual_id",
+                "type": "string"
             },
             {
-                "name": "tablet_id",
-                "type": "int"
-            },
-            {
-                "name": "timestamp",
+                "name": "time",
                 "type": "string"
             },
             {
@@ -34,12 +30,20 @@ class ProducerRawDataGPS(object):
             {
                 "name": "lon",
                 "type": "float"
+            },
+            {
+                "name": "hilbert",
+                "type": "int"
+            },
+            {
+                "name": "activity",
+                "type": "string"
             }
         ]
     }
     """
 
-    def __init__(self, obj: Union[str, dict, 'rawdata1']) -> None:
+    def __init__(self, obj: Union[str, dict, 'ProducerRawDataGPS']) -> None:
         if isinstance(obj, str):
             obj = json.loads(obj)
 
@@ -48,64 +52,54 @@ class ProducerRawDataGPS(object):
 
         elif not isinstance(obj, dict):
             raise TypeError(
-                f"{type(obj)} is not in ('str', 'dict', 'rawdata1')"
+                f"{type(obj)} is not in ('str', 'dict', 'ProducerRawDataGPS')"
             )
 
-        self.set_id(obj.get('id', None))
+        self.set_participant_virtual_id(
+            obj.get('participant_virtual_id', None))
 
-        self.set_tablet_id(obj.get('tablet_id', None))
-
-        self.set_timestamp(obj.get('timestamp', None))
+        self.set_time(obj.get('time', None))
 
         self.set_lat(obj.get('lat', None))
 
         self.set_lon(obj.get('lon', None))
 
+        self.set_hilbert(obj.get('hilbert', None))
+
+        self.set_activity(obj.get('activity', None))
+
     def dict(self):
         return todict(self)
 
-    def set_id(self, value: int) -> None:
-
-        try:
-            self.id = int(value)
-        except TypeError:
-            raise TypeError(
-                "field 'id' should be type int")
-
-    def get_id(self) -> int:
-
-        return self.id
-
-    def set_tablet_id(self, value: int) -> None:
-
-        try:
-            self.tablet_id = int(value)
-        except TypeError:
-            raise TypeError(
-                "field 'tablet_id' should be type int")
-
-    def get_tablet_id(self) -> int:
-
-        return self.tablet_id
-
-    def set_timestamp(self, value: str) -> None:
+    def set_participant_virtual_id(self, value: str) -> None:
 
         if isinstance(value, str):
-            self.timestamp = value
+            self.participant_virtual_id = value
         else:
-            raise TypeError("field 'timestamp' should be type str")
+            raise TypeError(
+                "field 'participant_virtual_id' should be type str")
 
-    def get_timestamp(self) -> str:
+    def get_participant_virtual_id(self) -> str:
 
-        return self.timestamp
+        return self.participant_virtual_id
+
+    def set_time(self, value: str) -> None:
+
+        if isinstance(value, str):
+            self.time = value
+        else:
+            raise TypeError("field 'time' should be type str")
+
+    def get_time(self) -> str:
+
+        return self.time
 
     def set_lat(self, value: float) -> None:
 
-        try:
-            self.lat = float(value)
-        except TypeError:
-            raise TypeError(
-                "field 'lat' should be type float")
+        if isinstance(value, float):
+            self.lat = value
+        else:
+            raise TypeError("field 'lat' should be type float")
 
     def get_lat(self) -> float:
 
@@ -113,15 +107,36 @@ class ProducerRawDataGPS(object):
 
     def set_lon(self, value: float) -> None:
 
-        try:
-            self.lon = float(value)
-        except TypeError:
-            raise TypeError(
-                "field 'lon' should be type float")
+        if isinstance(value, float):
+            self.lon = value
+        else:
+            raise TypeError("field 'lon' should be type float")
 
     def get_lon(self) -> float:
 
         return self.lon
+
+    def set_hilbert(self, value: int) -> None:
+
+        if isinstance(value, int):
+            self.hilbert = value
+        else:
+            raise TypeError("field 'hilbert' should be type int")
+
+    def get_hilbert(self) -> int:
+
+        return self.hilbert
+
+    def set_activity(self, value: str) -> None:
+
+        if isinstance(value, str):
+            self.activity = value
+        else:
+            raise TypeError("field 'activity' should be type str")
+
+    def get_activity(self) -> str:
+
+        return self.activity
 
     def serialize(self) -> None:
         return json.dumps(self, default=default_json_serialize)

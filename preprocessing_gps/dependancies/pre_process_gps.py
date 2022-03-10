@@ -26,30 +26,41 @@ def data_pre_processing_gps(data):
     # Rasterize  the data
     Long_min, Long_max, Lat_min, Lat_max = lambert_to_gps(
         Lambert_Long_min, Lambert_Long_max, Lambert_Lat_min, Lambert_Lat_max)
+
     # Get the max message id from the dataframe
     max_id = data["id"].max()
+    # Get the participant_virtual_id of the processed data
+    participant_virtual_id = data["participant_virtual_id"][0]
+
     # Create a hilbert index to each point and store the data in the same table
     hilbert_index(data, max_id, Long_min, Long_max, Lat_min, Lat_max)
-    return True
+
+    # Store data in clean_gps table
+    clean_gps(participant_virtual_id=participant_virtual_id)
+
+    # Create clean_gps_with_activities dataframe and return it
+    df = clean_gps_with_activities(participant_virtual_id)
+    return df
 
 
 # Create a hilbert index to each point and store the data in the same table
 def hilbert_index(data, max_id, Long_min, Long_max, Lat_min, Lat_max):
     id = 0
     while (id < max_id):
-        # RECUPERATION DE TOUTE LES DONNEES
-        # tablet_position_df = pd.read_sql('select * from tabletPositionAppCopy WHERE tablet_id = ' + str(tablet_id) + ' and hilbert is null and id>'+str(id)+' limit 3', engine)  # read 1000 rows from postgres and put the result in pandas dataframe
         # apply the hilbert function on this pandas dataframe
         data = add_hilbert_index(
             data, Long_min, Long_max, Lat_min, Lat_max, nb_c, nb_r, dimensions, iterations)
+
+        # Create a database session to store updated data
         db = scoped_session(sessionmaker(bind=engine))
         # loop to update the postgres table by adding the col_num, row-num and hilbert according to the id of the tabletPositionApp table
         for index, row in data.iterrows():
+            print("update " + str(row['id']))
             db.execute('UPDATE tabletPositionAppCopy SET col_num='+str(row['col_num'])+', row_num='+str(
                 row['row_num'])+', hilbert='+str(row['hilbert'])+' WHERE id='+str(row['id']))
-            # print("index: " + str(index) + "\n")
         db.commit()
         db.close()
+        print("fin boucle")
         id = data['id'].max()+1
     return True
 
@@ -59,7 +70,18 @@ def get_str_of_id(id):
 
 
 # def clean_gps(participant_virtual_id=987014104):
-def clean_gps(participant_virtual_id, used_engine):
+def clean_gps(participant_virtual_id):
+    #     df = pd.read_sql('''select "participant"."participant_virtual_id", "tabletPositionApp"."timestamp"::timestamp AS "datetime",
+    #   "tabletPositionApp"."lat" as lat,
+    #   "tabletPositionApp"."lon" as lng, "tabletPositionApp"."hilbert" as hilbert
+    # from "tablet","tabletPositionApp","campaignParticipantKit","kit","participant"
+    # where "tabletPositionApp"."tablet_id"="kit"."tablet_id"
+    # and "kit"."id"="campaignParticipantKit"."kit_id"
+    # and "campaignParticipantKit"."participant_id"="participant"."id"
+    # and "tabletPositionApp"."timestamp"
+    # between "campaignParticipantKit"."start_date" and "campaignParticipantKit"."end_date"
+    # and "tabletPositionApp"."tablet_id"="tablet"."id"
+    # order by 2''', engine)
     df = pd.read_sql('''select "participant"."participant_virtual_id", "tabletPositionApp"."timestamp"::timestamp AS "datetime",
   "tabletPositionApp"."lat" as lat,
   "tabletPositionApp"."lon" as lng, "tabletPositionApp"."hilbert" as hilbert
@@ -71,27 +93,22 @@ and "tabletPositionApp"."timestamp"
 between "campaignParticipantKit"."start_date" and "campaignParticipantKit"."end_date"
 and "tabletPositionApp"."tablet_id"="tablet"."id"
 and "participant"."participant_virtual_id"='''+get_str_of_id(participant_virtual_id)+'''
-order by 2''', used_engine)
-
+order by 2 LIMIT 20''', engine)
+    print("clean_gps resultat req:")
+    print(df)
     tdf = skmob.TrajDataFrame(df, latitude=2, longitude=3, datetime=1)
 
     ftdf = filtering.filter(tdf, max_speed_kmh=130.)
 
     data_list = [list(row) for row in ftdf.itertuples(index=False)]
 
-    db1 = scoped_session(sessionmaker(bind=used_engine))
-
+    db1 = scoped_session(sessionmaker(bind=engine))
     for item in data_list:
-
         db1.execute('''INSERT INTO clean_gps VALUES ('''+get_str_of_id(item[0])+''' , '''+get_str_of_id(
             item[1])+''','''+str(item[2])+''','''+str(item[3])+''','''+str(item[4])+'''); ''')
-
     db1.commit()
-
     db1.close()
-
-    print('#########END##########')
-
+    print("end of clean_gps updates")
 
 # Long_min, Long_max, Lat_min, Lat_max are the bord of the desired grid
 # nb_c,nb_r are the number of verctical and horizontal split of the grid
@@ -100,6 +117,8 @@ order by 2''', used_engine)
 # constraint(should be): nb_c > 2^iterations -1 and nb_r > 2^iterations -1
 # h,w means the high and the width of the grid
 # cw,ch means the high and the width of each cell
+
+
 def add_hilbert_index(tablet_position_df, Long_min, Long_max, Lat_min, Lat_max, nb_c, nb_r, dimensions, iterations):
     h = Lat_max - Lat_min
     w = Long_max - Long_min
@@ -114,11 +133,11 @@ def add_hilbert_index(tablet_position_df, Long_min, Long_max, Lat_min, Lat_max, 
         lambda row: math.floor((row['lon'] - Long_min) / cw), axis=1)
     tablet_position_df['row_num'] = tablet_position_df.apply(
         lambda row: math.floor((row['lat'] - Lat_min) / ch), axis=1)
-
     # Add hilbert column to pandas datafram with the hilbert values calculated from the col_num and row_num columns, if the gps is out of ile-de-france put hilbert=-1
+    # The function hilbert_curve.distance_from_coordinates only works for hilbert_curve V1.0.5, so you must install this specific version (pip install --upgrade hilbertcurve=1.0.5)
     tablet_position_df['hilbert'] = tablet_position_df.apply(lambda row: hilbert_curve.distance_from_coordinates(
         [row['col_num'], row['row_num']]) if row['col_num'] > 0 and row['row_num'] > 0 and row['col_num'] < 3600 and row['row_num'] < 3600 else -1, axis=1)
-
+    print(tablet_position_df)
     return tablet_position_df
 
 
@@ -130,6 +149,33 @@ def lambert_to_gps(Long_min, Long_max, Lat_min, Lat_max):
     Long_max, Lat_max = transform(inProj, outProj, Long_max, Lat_max)
 
     return Long_min, Long_max, Lat_min, Lat_max
+
+
+def clean_gps_with_activities(participant_virtual_id):
+    print("clean_gps_with_activities")
+    clean_gps_with_activities = pd.read_sql(''' select r1.*, r2.activity
+    from
+    (select *
+    from clean_gps) as r1
+    left join
+    (select T."timestamp"::timestamp AS "time",
+    T."activity", 
+    lead(T."timestamp"::timestamp) over (order by T.id, T."timestamp"::timestamp asc) as next_row, 
+        K."id" as "kit_id", P."id" as "participant_id", 
+        P."participant_virtual_id" as "participant_virtual_id"
+    from "tablet" B,"tabletActivityApp" T,"campaignParticipantKit" C,"kit" K,"participant" P
+    where T."tablet_id"=K."tablet_id"
+    and K."id"=C."kit_id"
+    and C."participant_id"=P."id"
+    and T."timestamp"::timestamp
+    between C."start_date"::timestamp and C."end_date"::timestamp
+    and T."tablet_id"=B."id"
+    ) as r2
+    on r1.participant_virtual_id = ''' + str(participant_virtual_id) + '''
+    and date_trunc('minute',r1."time") between date_trunc('minute',r2."time") and date_trunc('minute',r2.next_row - interval '1 sec')
+    ''', engine)
+    print(clean_gps_with_activities)
+    return clean_gps_with_activities
 
 
 '''

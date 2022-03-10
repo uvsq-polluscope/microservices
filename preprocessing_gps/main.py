@@ -84,13 +84,13 @@ def preprocessing_gps():
             if message is not None:
                 # cast data to consumer object
                 rowdata = ConsumerRawDataGPS(message)
-                print(rowdata)
+                print(rowdata.dict())
                 # check if get_id exist in data else create it
-                if rowdata.get_tablet_id() in data.keys():
-                    data.get(rowdata.get_tablet_id()
+                if rowdata.get_participant_virtual_id() in data.keys():
+                    data.get(rowdata.get_participant_virtual_id()
                              ).append(rowdata)
                 else:
-                    data[rowdata.get_tablet_id()] = [rowdata]
+                    data[rowdata.get_participant_virtual_id()] = [rowdata]
 
             # check if the number of values is reached
             key = rate_done(data)
@@ -104,8 +104,8 @@ def preprocessing_gps():
                 # delete values from memory
                 data[key] = []
 
-                # save data in kafka topic AND DW
-                # save_data(df)
+                # save data in kafka topic
+                save_data(df)
 
         except KeyboardInterrupt:
             break
@@ -117,7 +117,7 @@ def preprocessing_gps():
 
 def rate_done(data):
     for key in data.keys():
-        if (len(data.get(key)) == 60):
+        if (len(data.get(key)) == 20):
             print("rate done for key " + str(key))
             return key
         else:
@@ -125,10 +125,21 @@ def rate_done(data):
 
 
 def save_data(df):
+    print("save_data")
+    print(df)
+    print(str(df['time'][0]))
     for ind in df.index:
         msg = ProducerRawDataGPS(dict(
+            participant_virtual_id=str(df['participant_virtual_id'][ind]),
+            time=str(df['time'][ind]),
+            lat=float(df['lat'][ind]),
+            lon=float(df['lon'][ind]),
+            hilbert=int(df['hilbert'][ind]),
+            activity=str(df['activity'][ind])
         ))
-    return True
+        producer.produce(topic=TOPIC_NAME_PRODUCE, key=str(uuid4()), value=msg)
+        print(f"Produced message: {msg.dict()}")
+        producer.flush()
 
 
 def get_data():
@@ -139,12 +150,9 @@ def get_data():
 def get_df(l):
     # from list of object to dataframe
     data = pd.DataFrame(
-        [], columns=['id', 'tablet_id', 'timestamp', 'lat', 'lon'])
+        [], columns=['id', 'participant_virtual_id', 'tablet_id', 'time', 'lat', 'lon'])
     for elm in l:
         data = data.append(elm.__dict__, ignore_index=True)
-
-    data["timestamp"] = data["time"]
-    del data["time"]
     return data
 
 
@@ -153,6 +161,6 @@ def run(df):
     try:
         df = data_pre_processing_gps(df)
         return df
-    except:
-        print("erreur")
+    except Exception as e:
+        print(f'erreur :{e}')
         return pd.DataFrame()
