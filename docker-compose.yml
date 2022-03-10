@@ -32,3 +32,10 @@ services:
       - DATABASE=postgresql://postgres:postgres@192.168.33.124:5435/postgres
     volumes:
       - ./dataloader:/code
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
+ 
