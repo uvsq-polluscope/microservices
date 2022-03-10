@@ -1,0 +1,18 @@
+version: "3"
+services:
+  preprocessing:
+    build: ./preprocessing_time_series/.
+    volumes:
+      - .:/code
+    ports:
+      - "8001:80"
+  classification:
+    build: ./classification/.
+    volumes:
+      - .:/code
+    ports:
+      - "8000:80"
+  dataloader:
+    build: ./dataloader/.
+    volumes:
+      - .:/code

@@ -1,7 +1,6 @@
 
 #import locale file
 from ast import Delete, Pass
-from msilib.schema import Error
 from dependancies.Classification_v1 import *
 from object.ConsumerRawData import ConsumerRawData
 from object.ProducerRawData import ProducerRawData
