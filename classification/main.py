@@ -21,17 +21,18 @@ from confluent_kafka.serialization import StringDeserializer, StringSerializer
 import pandas as pd
 import warnings
 from pandas.core.common import SettingWithCopyWarning
+import os
 # import fastApi
 from fastapi import FastAPI
 
 # fastapi config
 app = FastAPI()
 
-# kafka consumer config
-KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
+# kafka consumer config  "localhost:9092"
+KAFKA_BOOTSTRAP_SERVERS = os.environ['KAFKA_BOOTSTRAP_SERVERS']
 TOPIC_NAME_CONSUME = "ProducerRawData"
 
-schema_registry_client = SchemaRegistryClient({"url": "http://localhost:8085"})
+schema_registry_client = SchemaRegistryClient({"url": os.environ['SCHEMA_REGISTRY_CLIENT']})
 consumer_conf = {"bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
                  "key.deserializer": StringDeserializer("utf_8"),
                  "value.deserializer": AvroDeserializer(schema_str=None,  # the schema should be fetched from the registry

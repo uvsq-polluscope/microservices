@@ -8,14 +8,14 @@ from confluent_kafka.schema_registry import SchemaRegistryClient
 from confluent_kafka.schema_registry.avro import AvroDeserializer, AvroSerializer
 from confluent_kafka.serialization import StringDeserializer, StringSerializer
 from uuid import uuid4
-
+import os
 from helpers import todict
 from Polluscope.rawdata import rawdata
 
-KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
+KAFKA_BOOTSTRAP_SERVERS = os.environ['KAFKA_BOOTSTRAP_SERVERS']
 TOPIC_NAME = "rawdata"
 
-schema_registry_client = SchemaRegistryClient({"url": "http://localhost:8085"})
+schema_registry_client = SchemaRegistryClient({"url": os.environ['SCHEMA_REGISTRY_CLIENT']})
 
 # --- Producing part ---
 
@@ -207,9 +207,9 @@ def increment_ids(kit_id, participant_id):
             '''
     return request
 
-
+# "postgresql://dwaccount:password@127.0.0.1:5435/dwaccount"
 def app():
-        db_string = "postgresql://dwaccount:password@127.0.0.1:5435/dwaccount"
+        db_string = os.environ["DATABASE"]
         db = create_engine(db_string, echo=True)
         ids = pd.read_sql(id_request, db)
         for i in range(0,104):

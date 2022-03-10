@@ -4,15 +4,25 @@ services:
     build: ./preprocessing_time_series/.
     volumes:
       - .:/code
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=localhost:9092
+      - SCHEMA_REGISTRY_CLIENT=http://localhost:8085
     ports:
       - "8001:80"
   classification:
     build: ./classification/.
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=localhost:9092
+      - SCHEMA_REGISTRY_CLIENT=http://localhost:8085
     volumes:
       - .:/code
     ports:
       - "8000:80"
   dataloader:
     build: ./dataloader/.
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=localhost:9092
+      - SCHEMA_REGISTRY_CLIENT=http://localhost:8085
+      - DATABASE=postgresql://dwaccount:password@127.0.0.1:5435/dwaccount
     volumes:
       - .:/code
