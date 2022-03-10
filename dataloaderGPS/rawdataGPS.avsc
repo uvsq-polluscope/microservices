@@ -1,0 +1,12 @@
+{
+    "type" : "record",
+    "namespace" : "Polluscope",
+    "name" : "rawdataGPS",
+    "fields" : [
+       { "name" : "id" , "type" : "int" },
+       { "name" : "tablet_id" , "type" : "int" },
+       { "name" : "time" , "type" : "string" },
+       { "name" : "lat" , "type" : "float" },
+       { "name" : "lon" , "type" : "float" }
+    ]
+}
