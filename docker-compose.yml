@@ -7,27 +7,31 @@ services:
     volumes:
       - ./preprocessing_time_series:/code
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=192.168.33.124:9092
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
       - SCHEMA_REGISTRY_CLIENT=http://192.168.33.124:8085
     ports:
       - "8001:80"
+    networks:
+      - mynetwork
   classification:
     build: 
       context: ./classification/
       dockerfile: Dockerfile
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=192.168.33.124:9092
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
       - SCHEMA_REGISTRY_CLIENT=http://192.168.33.124:8085
     volumes:
-      - . ./classification:/code
+      - ../classification:/code
     ports:
       - "8000:80"
+    networks:
+      - mynetwork
   dataloader:
     build: 
       context: ./dataloader/
       dockerfile: Dockerfile
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=192.168.33.124:9092
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
       - SCHEMA_REGISTRY_CLIENT=http://192.168.33.124:8085
       - DATABASE=postgresql://postgres:postgres@192.168.33.124:5435/postgres
     volumes:
@@ -39,4 +43,4 @@ networks:
   mynetwork:
     driver: bridge
     external: 
-      name: mynetwork
+      name: infrastructure_mynetwork
