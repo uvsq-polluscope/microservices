@@ -20,6 +20,10 @@ class rawdataGPS(object):
                 "type": "int"
             },
             {
+                "name": "participant_virtual_id",
+                "type": "string"
+            },
+            {
                 "name": "tablet_id",
                 "type": "int"
             },
@@ -53,6 +57,8 @@ class rawdataGPS(object):
 
         self.set_id(obj.get('id', None))
 
+        self.set_participant_virtual_id(obj.get('participant_virtual_id', None))
+
         self.set_tablet_id(obj.get('tablet_id', None))
 
         self.set_time(obj.get('time', None))
@@ -74,6 +80,17 @@ class rawdataGPS(object):
     def get_id(self) -> int:
 
         return self.id
+
+    def set_participant_virtual_id(self, value: str) -> None:
+
+        if isinstance(value, str):
+            self.participant_virtual_id = value
+        else:
+            raise TypeError("field 'participant_virtual_id' should be type str")
+
+    def get_participant_virtual_id(self) -> str:
+
+        return self.participant_virtual_id
 
     def set_tablet_id(self, value: int) -> None:
 

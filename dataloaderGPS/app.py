@@ -31,18 +31,20 @@ def app():
     db_string = "postgresql://dwaccount:password@127.0.0.1:5435/dwaccount"
     db = create_engine(db_string, echo=True)
 
-    original_data = pd.read_sql('select id, tablet_id, timestamp, lat, lon from "tabletPositionApp" LIMIT 60', db)
+    #original_data = pd.read_sql('''SELECT "tabletPositionApp".id, "participant".participant_virtual_id, "tabletPositionApp".tablet_id, "tabletPositionApp".timestamp, "tabletPositionApp".lat, "tabletPositionApp".lon FROM "tablet","tabletPositionApp","campaignParticipantKit","kit","participant" WHERE "tabletPositionApp"."tablet_id"="kit"."tablet_id" and "kit"."id"="campaignParticipantKit"."kit_id" and "campaignParticipantKit"."participant_id"="participant"."id" and "tabletPositionApp"."timestamp" between "campaignParticipantKit"."start_date" and "campaignParticipantKit"."end_date" and "tabletPositionApp"."tablet_id"="tablet"."id" and "tabletPositionApp".hilbert is null LIMIT 20''', db)
+    original_data = pd.read_sql('''SELECT "tabletPositionApp".id, "participant".participant_virtual_id, "tabletPositionApp".tablet_id, "tabletPositionApp".timestamp, "tabletPositionApp".lat, "tabletPositionApp".lon FROM "tablet","tabletPositionApp","campaignParticipantKit","kit","participant" WHERE "tabletPositionApp"."tablet_id"="kit"."tablet_id" and "kit"."id"="campaignParticipantKit"."kit_id" and "campaignParticipantKit"."participant_id"="participant"."id" and "tabletPositionApp"."timestamp" between "campaignParticipantKit"."start_date" and "campaignParticipantKit"."end_date" and "tabletPositionApp"."tablet_id"="tablet"."id" and "participant".participant_virtual_id = '99999C' LIMIT 20''', db)
+
     print(original_data)
     for ind in original_data.index:
         msg = rawdataGPS(dict(
             #Handle the case with alphanumeric id_number
             id=int(original_data['id'][ind]),
+            participant_virtual_id=str(original_data['participant_virtual_id'][ind]),
             tablet_id=int(original_data['tablet_id'][ind]),
             time=str(original_data['timestamp'][ind]),
             lat=float(original_data['lat'][ind]),
             lon=float(original_data['lon'][ind]),
         ))
-        print(msg)
         producer.produce(topic=TOPIC_NAME,key=str(uuid4()),value=msg)
         print(f"Produced message: {msg.dict()}")
         producer.flush()
