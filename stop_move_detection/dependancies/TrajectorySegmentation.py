@@ -48,8 +48,8 @@ class TrajectorySegmentation:
         self.labels = labels
         # input data needs lat,lon,alt,time_date, [Labels]
         # ,nrows=80000
-        #self.raw_data = self.raw_data.drop_duplicates(time_date)
-        self.row_data = pd.read_csv(src, sep=seperator, parse_dates=[time_date],index_col=time_date)
+        #self.row_data = self.row_data.drop_duplicates(time_date)
+        #self.row_data = pd.read_csv(src, sep=seperator, parse_dates=[time_date],index_col=time_date)
         #self.raw_data = self.raw_data.drop_duplicates(['t_user_id',time_date])
         #self.raw_data.set_index(time_date)
 

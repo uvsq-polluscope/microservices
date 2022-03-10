@@ -16,7 +16,7 @@ import pickle
 #participant_virtual_ids = participants.participant_virtual_id.unique()
 
 
-def segmented_data(participant_virtual_id=9999941):
+def segmented_data(participant_virtual_id=9999915):
     
     df_hilbert = stop_hilbert_vgp(participant_virtual_id=participant_virtual_id)
     
@@ -57,15 +57,19 @@ def segmented_data(participant_virtual_id=9999941):
     
     moves = pd.concat(moves)
     
-    moves.to_csv('..\..\TrajLib\data\moves_'+str(participant_virtual_id)+'.csv', index=False)
+    #moves.to_csv('..\..\TrajLib\data\moves_'+str(participant_virtual_id)+'.csv', index=False)
     
-    return data, mixed
+    return data, mixed, moves
 
-def get_features(participant_virtual_id=9999941):
+def get_features(df, participant_virtual_id=9999915):
     
-    ts_obj=ts.TrajectorySegmentation()
+    df.set_index('time',inplace=True)
     
-    ts_obj.load_data(lat='lat',lon='lon',time_date='time', labels=['activity'],src='data/moves_'+str(participant_virtual_id)+'.csv',seperator=',')
+    ts_obj=ts.TrajectorySegmentation(df)
+    
+    ts_obj.load_data(time_date='time')
+    
+    #ts_obj.load_data(lat='lat',lon='lon',time_date='time', labels=['activity'],src='data/moves_'+str(participant_virtual_id)+'.csv',seperator=',')
 
     dfs = splitting2(ts_obj.return_row_data())
     
@@ -104,7 +108,7 @@ def get_features(participant_virtual_id=9999941):
     col=distanceSet+speedSet+accelerationSet+bearingSet+jerkSet+brateSet+brate_rateSet+stop_timeSet+['isInValid', 'isPure', 'target','stopRate','starTime', 'endTime',  'isWeekDay', 'dayOfWeek', 'durationInSeconds', 'distanceTravelled', 'startToEndDistance','startLat', 'starLon', 'endLat', 'endLon', 'selfIntersect', 'modayDistance', 'tuesdayDistance', 'wednesdayDay', 'thursdayDistance', 'fridayDistance', 'saturdayDistance', 'sundayDistance', 'stopTotal','stopTotalOverDuration', 'userId', 'time']
 
     features_set = pd.DataFrame(features,columns=col)
-    features_set.to_csv('data/features_participant_'+str(participant_virtual_id)+'.csv')
+    #features_set.to_csv('data/features_participant_'+str(participant_virtual_id)+'.csv')
     
     return features_set
 
