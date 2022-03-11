@@ -25,6 +25,108 @@ from math import isnan
 import csv
 
 
+sqlcode1 = '''
+select newdf_t.cusum_time as Temperature,
+newdf_h.cusum_time as Humidity,
+newdf_t.activity_time,
+newdf_t.activity,
+newdf_t.event
+
+from newdf_t
+left join newdf_h 
+on newdf_t.activity_time = newdf_h.activity_time
+
+UNION
+
+select newdf_t.cusum_time as Temperature,
+newdf_h.cusum_time as Humidity,
+newdf_h.activity_time,
+newdf_h.activity,
+newdf_h.event
+
+from newdf_h
+left join newdf_t 
+on newdf_h.activity_time = newdf_t.activity_time
+
+'''
+
+
+###Temperature & humidity & NO2
+
+sqlcode2 = '''
+select newdf_NO2.cusum_time as NO2,
+TH1.* 
+
+from TH1
+left join newdf_NO2
+on newdf_NO2.activity_time = TH1.activity_time
+
+UNION
+
+select newdf_NO2.cusum_time as NO2,
+TH1.temperature,
+TH1.humidity,
+newdf_NO2.activity_time,
+newdf_NO2.activity,
+newdf_NO2.event
+
+from newdf_NO2
+left join TH1 
+on TH1.activity_time = newdf_NO2.activity_time
+
+'''
+
+
+###Temperature & humidity & NO2 & BC
+
+sqlcode3 = '''
+select newdf_BC.cusum_time as BC,
+TH2.* 
+
+from TH2
+left join newdf_BC
+on TH2.activity_time = newdf_BC.activity_time
+
+UNION
+
+select newdf_BC.cusum_time as BC,
+TH2.NO2,
+TH2.temperature,
+TH2.humidity,
+newdf_BC.activity_time,
+newdf_BC.activity,
+newdf_BC.event
+
+from newdf_BC
+left join TH2
+on newdf_BC.activity_time = TH2.activity_time
+
+'''
+###Temperature & humidity & NO2 & BC
+
+sqlcode4 = '''
+select newdf_BC.cusum_time as BC,
+TH2.* 
+
+from TH2
+left join newdf_BC
+on TH2.activity_time = newdf_BC.activity_time
+
+UNION
+
+select newdf_BC.cusum_time as BC,
+TH2.temperature,
+TH2.humidity,
+newdf_BC.activity_time,
+newdf_BC.activity,
+newdf_BC.event
+
+from newdf_BC
+left join TH2
+on newdf_BC.activity_time = TH2.activity_time
+
+'''
+
 #this function calculates the precision and recall when using cumsum
 def precision_recall(df):
     TP = len(df[(df.activity_time.notnull()) & (df.cusum_time.notnull())].drop_duplicates('activity_time').drop_duplicates('cusum_time'))

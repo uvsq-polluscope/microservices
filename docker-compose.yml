@@ -21,7 +21,7 @@ services:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
       - SCHEMA_REGISTRY_CLIENT=http://192.168.33.124:8085
     volumes:
-      - ../classification:/code
+      - ./classification:/code
     ports:
       - "8000:80"
     networks:
