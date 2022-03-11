@@ -13,7 +13,7 @@ services:
       - "8001:80"
     networks:
       - mynetwork
-  preprocessingGPS:
+  preprocessinggps:
     build: 
       context: ./preprocessing_gps/
       dockerfile: Dockerfile
@@ -51,7 +51,7 @@ services:
       - ./dataloader:/code
     networks:
       - mynetwork
-  dataloaderGPS:
+  dataloadergps:
     build: 
       context: ./dataloaderGPS/
       dockerfile: Dockerfile
