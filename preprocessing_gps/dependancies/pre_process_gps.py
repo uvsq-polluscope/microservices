@@ -56,7 +56,7 @@ def hilbert_index(data, max_id, Long_min, Long_max, Lat_min, Lat_max):
         # loop to update the postgres table by adding the col_num, row-num and hilbert according to the id of the tabletPositionApp table
         for index, row in data.iterrows():
             print("update " + str(row['id']))
-            db.execute('UPDATE tabletPositionAppCopy SET col_num='+str(row['col_num'])+', row_num='+str(
+            db.execute('UPDATE "tabletPositionApp" SET col_num='+str(row['col_num'])+', row_num='+str(
                 row['row_num'])+', hilbert='+str(row['hilbert'])+' WHERE id='+str(row['id']))
         db.commit()
         db.close()
@@ -71,18 +71,7 @@ def get_str_of_id(id):
 
 # def clean_gps(participant_virtual_id=987014104):
 def clean_gps(participant_virtual_id):
-    #     df = pd.read_sql('''select "participant"."participant_virtual_id", "tabletPositionApp"."timestamp"::timestamp AS "datetime",
-    #   "tabletPositionApp"."lat" as lat,
-    #   "tabletPositionApp"."lon" as lng, "tabletPositionApp"."hilbert" as hilbert
-    # from "tablet","tabletPositionApp","campaignParticipantKit","kit","participant"
-    # where "tabletPositionApp"."tablet_id"="kit"."tablet_id"
-    # and "kit"."id"="campaignParticipantKit"."kit_id"
-    # and "campaignParticipantKit"."participant_id"="participant"."id"
-    # and "tabletPositionApp"."timestamp"
-    # between "campaignParticipantKit"."start_date" and "campaignParticipantKit"."end_date"
-    # and "tabletPositionApp"."tablet_id"="tablet"."id"
-    # order by 2''', engine)
-    df = pd.read_sql('''select "participant"."participant_virtual_id", "tabletPositionApp"."timestamp"::timestamp AS "datetime",
+    df = pd.read_sql('''select "tabletPositionApp".id, "participant"."participant_virtual_id", "tabletPositionApp"."timestamp"::timestamp AS "datetime",
   "tabletPositionApp"."lat" as lat,
   "tabletPositionApp"."lon" as lng, "tabletPositionApp"."hilbert" as hilbert
 from "tablet","tabletPositionApp","campaignParticipantKit","kit","participant"
@@ -93,7 +82,7 @@ and "tabletPositionApp"."timestamp"
 between "campaignParticipantKit"."start_date" and "campaignParticipantKit"."end_date"
 and "tabletPositionApp"."tablet_id"="tablet"."id"
 and "participant"."participant_virtual_id"='''+get_str_of_id(participant_virtual_id)+'''
-order by 2 LIMIT 20''', engine)
+order by 2''', engine)
     print("clean_gps resultat req:")
     print(df)
     tdf = skmob.TrajDataFrame(df, latitude=2, longitude=3, datetime=1)
@@ -152,11 +141,10 @@ def lambert_to_gps(Long_min, Long_max, Lat_min, Lat_max):
 
 
 def clean_gps_with_activities(participant_virtual_id):
-    print("clean_gps_with_activities")
+
     clean_gps_with_activities = pd.read_sql(''' select r1.*, r2.activity
     from
-    (select *
-    from clean_gps) as r1
+    (SELECT * FROM clean_gps WHERE participant_virtual_id=''' + get_str_of_id(participant_virtual_id) + ''') as r1
     left join
     (select T."timestamp"::timestamp AS "time",
     T."activity", 
@@ -171,7 +159,7 @@ def clean_gps_with_activities(participant_virtual_id):
     between C."start_date"::timestamp and C."end_date"::timestamp
     and T."tablet_id"=B."id"
     ) as r2
-    on r1.participant_virtual_id = ''' + str(participant_virtual_id) + '''
+    on r1.participant_virtual_id = r2.participant_virtual_id
     and date_trunc('minute',r1."time") between date_trunc('minute',r2."time") and date_trunc('minute',r2.next_row - interval '1 sec')
     ''', engine)
     print(clean_gps_with_activities)

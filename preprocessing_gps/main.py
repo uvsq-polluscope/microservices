@@ -98,6 +98,8 @@ def preprocessing_gps():
             if (key != "No"):
                 # run preprocessingGPS algo
                 df = get_df(data.get(key))
+                print(df["id"].values)
+                break
                 print(df)
                 df = run(df)
 
@@ -128,6 +130,7 @@ def save_data(df):
     print("save_data")
     print(df)
     print(str(df['time'][0]))
+    produced_message_count = 0
     for ind in df.index:
         msg = ProducerRawDataGPS(dict(
             participant_virtual_id=str(df['participant_virtual_id'][ind]),
@@ -138,8 +141,9 @@ def save_data(df):
             activity=str(df['activity'][ind])
         ))
         producer.produce(topic=TOPIC_NAME_PRODUCE, key=str(uuid4()), value=msg)
-        print(f"Produced message: {msg.dict()}")
+        produced_message_count += 1
         producer.flush()
+    print(f"Produced {produced_message_count}message")
 
 
 def get_data():
