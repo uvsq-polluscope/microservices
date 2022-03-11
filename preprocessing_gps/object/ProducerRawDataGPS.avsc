@@ -1,0 +1,35 @@
+{
+  "type": "record",
+  "namespace": "Polluscope",
+  "name": "ProducerRawDataGPS",
+  "fields": [
+    {
+      "name": "id",
+      "type": "int"
+    },
+    {
+      "name": "participant_virtual_id",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": "string"
+    },
+    {
+      "name": "lat",
+      "type": "float"
+    },
+    {
+      "name": "lon",
+      "type": "float"
+    },
+    {
+      "name": "hilbert",
+      "type": "int"
+    },
+    {
+      "name": "activity",
+      "type": "string"
+    }
+  ]
+}
