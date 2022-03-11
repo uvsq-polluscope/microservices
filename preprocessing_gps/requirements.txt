@@ -16,3 +16,4 @@ scipy
 matplotlib
 pandasql
 hilbertcurve==1.0.5
+pyproj
