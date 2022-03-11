@@ -11,11 +11,12 @@ from confluent_kafka.serialization import StringDeserializer, StringSerializer
 
 from helpers import todict
 from Polluscope.rawdataGPS import rawdataGPS
+import os
 
-KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
+KAFKA_BOOTSTRAP_SERVERS = os.environ['KAFKA_BOOTSTRAP_SERVERS']
 TOPIC_NAME = "rawdataGPS"
 
-schema_registry_client = SchemaRegistryClient({"url": "http://localhost:8085"})
+schema_registry_client = SchemaRegistryClient({"url": os.environ['SCHEMA_REGISTRY_CLIENT']})
 
 # --- Producing part ---
 
@@ -28,7 +29,7 @@ producer_conf = {"bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
 producer = SerializingProducer(producer_conf)
 
 def app():
-    db_string = "postgresql://dwaccount:password@127.0.0.1:5435/dwaccount"
+    db_string = os.environ["DATABASE"]
     db = create_engine(db_string, echo=True)
 
     #original_data = pd.read_sql('''SELECT "tabletPositionApp".id, "participant".participant_virtual_id, "tabletPositionApp".tablet_id, "tabletPositionApp".timestamp, "tabletPositionApp".lat, "tabletPositionApp".lon FROM "tablet","tabletPositionApp","campaignParticipantKit","kit","participant" WHERE "tabletPositionApp"."tablet_id"="kit"."tablet_id" and "kit"."id"="campaignParticipantKit"."kit_id" and "campaignParticipantKit"."participant_id"="participant"."id" and "tabletPositionApp"."timestamp" between "campaignParticipantKit"."start_date" and "campaignParticipantKit"."end_date" and "tabletPositionApp"."tablet_id"="tablet"."id" and "tabletPositionApp".hilbert is null LIMIT 20''', db)

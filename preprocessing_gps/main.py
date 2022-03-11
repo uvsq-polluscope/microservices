@@ -27,10 +27,10 @@ from fastapi import FastAPI
 app = FastAPI()
 
 # kafka consumer config
-KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
+KAFKA_BOOTSTRAP_SERVERS = os.environ['KAFKA_BOOTSTRAP_SERVERS']
 TOPIC_NAME_CONSUME = "rawdataGPS"
 
-schema_registry_client = SchemaRegistryClient({"url": "http://localhost:8085"})
+schema_registry_client = SchemaRegistryClient({"url": os.environ['SCHEMA_REGISTRY_CLIENT']})
 consumer_conf = {"bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
                  "key.deserializer": StringDeserializer("utf_8"),
                  "value.deserializer": AvroDeserializer(schema_str=None,  # the schema should be fetched from the registry

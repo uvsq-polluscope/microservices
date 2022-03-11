@@ -13,6 +13,19 @@ services:
       - "8001:80"
     networks:
       - mynetwork
+  preprocessingGPS:
+    build: 
+      context: ./preprocessing_gps/
+      dockerfile: Dockerfile
+    volumes:
+      - ./preprocessing_gps:/code
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - SCHEMA_REGISTRY_CLIENT=http://192.168.33.124:8085
+    ports:
+      - "8002:80"
+    networks:
+      - mynetwork
   classification:
     build: 
       context: ./classification/
@@ -36,6 +49,18 @@ services:
       - DATABASE=postgresql://postgres:postgres@192.168.33.124:5435/postgres
     volumes:
       - ./dataloader:/code
+    networks:
+      - mynetwork
+  dataloaderGPS:
+    build: 
+      context: ./dataloaderGPS/
+      dockerfile: Dockerfile
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - SCHEMA_REGISTRY_CLIENT=http://192.168.33.124:8085
+      - DATABASE=postgresql://postgres:postgres@192.168.33.124:5435/postgres
+    volumes:
+      - ./dataloaderGPS:/code
     networks:
       - mynetwork
 
