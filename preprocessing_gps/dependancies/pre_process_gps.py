@@ -31,15 +31,19 @@ def data_pre_processing_gps(data):
     max_id = data["id"].max()
     # Get the participant_virtual_id of the processed data
     participant_virtual_id = data["participant_virtual_id"][0]
-
+    print("1")
     # Create a hilbert index to each point and store the data in the same table
     hilbert_index(data, max_id, Long_min, Long_max, Lat_min, Lat_max)
+    print("2")
+    # Recover ids of data as an array
+    ids = str(data["id"].values).replace(" ", ", ")
+    print(f'ids: {ids}')
 
     # Store data in clean_gps table
-    clean_gps(participant_virtual_id=participant_virtual_id)
+    clean_gps(participant_virtual_id=participant_virtual_id, tuple_ids=ids)
 
-    # Create clean_gps_with_activities dataframe and return it
-    df = clean_gps_with_activities(participant_virtual_id)
+    # Create clean_gps_with_activities dataframe
+    df = clean_gps_with_activities(tuple_ids=ids)
     return df
 
 
@@ -55,12 +59,11 @@ def hilbert_index(data, max_id, Long_min, Long_max, Lat_min, Lat_max):
         db = scoped_session(sessionmaker(bind=engine))
         # loop to update the postgres table by adding the col_num, row-num and hilbert according to the id of the tabletPositionApp table
         for index, row in data.iterrows():
-            print("update " + str(row['id']))
+            #print("update " + str(row['id']))
             db.execute('UPDATE "tabletPositionApp" SET col_num='+str(row['col_num'])+', row_num='+str(
                 row['row_num'])+', hilbert='+str(row['hilbert'])+' WHERE id='+str(row['id']))
         db.commit()
         db.close()
-        print("fin boucle")
         id = data['id'].max()+1
     return True
 
@@ -69,23 +72,28 @@ def get_str_of_id(id):
     return "'"+str(id)+"'"
 
 
-# def clean_gps(participant_virtual_id=987014104):
-def clean_gps(participant_virtual_id):
-    df = pd.read_sql('''select "tabletPositionApp".id, "participant"."participant_virtual_id", "tabletPositionApp"."timestamp"::timestamp AS "datetime",
-  "tabletPositionApp"."lat" as lat,
-  "tabletPositionApp"."lon" as lng, "tabletPositionApp"."hilbert" as hilbert
-from "tablet","tabletPositionApp","campaignParticipantKit","kit","participant"
-where "tabletPositionApp"."tablet_id"="kit"."tablet_id"
-and "kit"."id"="campaignParticipantKit"."kit_id"
-and "campaignParticipantKit"."participant_id"="participant"."id"
-and "tabletPositionApp"."timestamp"
-between "campaignParticipantKit"."start_date" and "campaignParticipantKit"."end_date"
-and "tabletPositionApp"."tablet_id"="tablet"."id"
-and "participant"."participant_virtual_id"='''+get_str_of_id(participant_virtual_id)+'''
-order by 2''', engine)
+# Aggregate data in clean_gps table, tabletPositionApp's id is also stored to be used after
+def clean_gps(participant_virtual_id, tuple_ids):
+
+    # Remove [ and ] from the array to be used in the SQL query
+    tuple_ids = tuple_ids.replace("[", "").replace("]", "")
+
+    df = pd.read_sql('''select "participant"."participant_virtual_id", "tabletPositionApp"."timestamp"::timestamp AS "datetime",
+    "tabletPositionApp"."lat" as lat,
+    "tabletPositionApp"."lon" as lng, "tabletPositionApp"."hilbert" as hilbert, "tabletPositionApp"."id" as tablet_position_app_id
+    from "tablet","tabletPositionApp","campaignParticipantKit","kit","participant"
+    where "tabletPositionApp"."tablet_id"="kit"."tablet_id"
+    and "kit"."id"="campaignParticipantKit"."kit_id"
+    and "campaignParticipantKit"."participant_id"="participant"."id"
+    and "tabletPositionApp"."timestamp"
+    between "campaignParticipantKit"."start_date" and "campaignParticipantKit"."end_date"
+    and "tabletPositionApp"."tablet_id"="tablet"."id"
+    and "participant"."participant_virtual_id"='''+get_str_of_id(participant_virtual_id)+'''
+    and "tabletPositionApp".id IN (''' + tuple_ids + ''')
+    order by 2''', engine)
     print("clean_gps resultat req:")
     print(df)
-    tdf = skmob.TrajDataFrame(df, latitude=2, longitude=3, datetime=1)
+    tdf = skmob.TrajDataFrame(df, latitude=3, longitude=4, datetime=2)
 
     ftdf = filtering.filter(tdf, max_speed_kmh=130.)
 
@@ -93,11 +101,41 @@ order by 2''', engine)
 
     db1 = scoped_session(sessionmaker(bind=engine))
     for item in data_list:
-        db1.execute('''INSERT INTO clean_gps VALUES ('''+get_str_of_id(item[0])+''' , '''+get_str_of_id(
-            item[1])+''','''+str(item[2])+''','''+str(item[3])+''','''+str(item[4])+'''); ''')
+        db1.execute('''INSERT INTO clean_gps VALUES ('''+get_str_of_id(item[0])+''','''+get_str_of_id(item[1])+''', '''+get_str_of_id(
+            item[2])+''','''+get_str_of_id(item[3])+''','''+str(item[4])+''','''+str(item[5])+'''); ''')
     db1.commit()
     db1.close()
-    print("end of clean_gps updates")
+
+
+# aggregate data from clean_gps and others table to get associated activity, only for tablet_position_app_id received in entry
+def clean_gps_with_activities(tuple_ids):
+    print("clean_gps_with_activities")
+    # Remove [ and ] from the array to be used in the SQL query
+    tuple_ids = tuple_ids.replace("[", "").replace("]", "")
+
+    clean_gps_with_activities = pd.read_sql(''' select r1.*, r2.activity
+    from
+    (SELECT * FROM clean_gps WHERE tablet_position_app_id IN (''' + tuple_ids + ''')) as r1
+    left join
+    (select T."timestamp"::timestamp AS "time",
+    T."activity", 
+    lead(T."timestamp"::timestamp) over (order by T.id, T."timestamp"::timestamp asc) as next_row, 
+        K."id" as "kit_id", P."id" as "participant_id", 
+        P."participant_virtual_id" as "participant_virtual_id"
+    from "tablet" B,"tabletActivityApp" T,"campaignParticipantKit" C,"kit" K,"participant" P
+    where T."tablet_id"=K."tablet_id"
+    and K."id"=C."kit_id"
+    and C."participant_id"=P."id"
+    and T."timestamp"::timestamp
+    between C."start_date"::timestamp and C."end_date"::timestamp
+    and T."tablet_id"=B."id"
+    ) as r2
+    on r1.participant_virtual_id = r2.participant_virtual_id
+    and date_trunc('minute',r1."time") between date_trunc('minute',r2."time") and date_trunc('minute',r2.next_row - interval '1 sec')
+    ''', engine)
+    print(clean_gps_with_activities)
+    return clean_gps_with_activities
+
 
 # Long_min, Long_max, Lat_min, Lat_max are the bord of the desired grid
 # nb_c,nb_r are the number of verctical and horizontal split of the grid
@@ -106,8 +144,7 @@ order by 2''', engine)
 # constraint(should be): nb_c > 2^iterations -1 and nb_r > 2^iterations -1
 # h,w means the high and the width of the grid
 # cw,ch means the high and the width of each cell
-
-
+# The function hilbert_curve.distance_from_coordinates only works for hilbert_curve V1.0.5, so you must install this specific version (pip install --upgrade hilbertcurve=1.0.5)
 def add_hilbert_index(tablet_position_df, Long_min, Long_max, Lat_min, Lat_max, nb_c, nb_r, dimensions, iterations):
     h = Lat_max - Lat_min
     w = Long_max - Long_min
@@ -138,32 +175,6 @@ def lambert_to_gps(Long_min, Long_max, Lat_min, Lat_max):
     Long_max, Lat_max = transform(inProj, outProj, Long_max, Lat_max)
 
     return Long_min, Long_max, Lat_min, Lat_max
-
-
-def clean_gps_with_activities(participant_virtual_id):
-
-    clean_gps_with_activities = pd.read_sql(''' select r1.*, r2.activity
-    from
-    (SELECT * FROM clean_gps WHERE participant_virtual_id=''' + get_str_of_id(participant_virtual_id) + ''') as r1
-    left join
-    (select T."timestamp"::timestamp AS "time",
-    T."activity", 
-    lead(T."timestamp"::timestamp) over (order by T.id, T."timestamp"::timestamp asc) as next_row, 
-        K."id" as "kit_id", P."id" as "participant_id", 
-        P."participant_virtual_id" as "participant_virtual_id"
-    from "tablet" B,"tabletActivityApp" T,"campaignParticipantKit" C,"kit" K,"participant" P
-    where T."tablet_id"=K."tablet_id"
-    and K."id"=C."kit_id"
-    and C."participant_id"=P."id"
-    and T."timestamp"::timestamp
-    between C."start_date"::timestamp and C."end_date"::timestamp
-    and T."tablet_id"=B."id"
-    ) as r2
-    on r1.participant_virtual_id = r2.participant_virtual_id
-    and date_trunc('minute',r1."time") between date_trunc('minute',r2."time") and date_trunc('minute',r2.next_row - interval '1 sec')
-    ''', engine)
-    print(clean_gps_with_activities)
-    return clean_gps_with_activities
 
 
 '''

@@ -1,7 +1,6 @@
 
 # import locale file
 from ast import Delete, Pass
-#from msilib.schema import Error
 from dependancies.pre_process_gps import *
 from object.ConsumerRawDataGPS import ConsumerRawDataGPS
 from object.ProducerRawDataGPS import ProducerRawDataGPS
@@ -68,39 +67,39 @@ def preprocessing_gps():
 
     # Dict contain data for each participant
     data = {}
-    # Lestener consumer kafka
+    # Always listening to kafka consumer
+    print(f'Listening to messages on topic {TOPIC_NAME_CONSUME}...')
     while True:
         try:
             try:
                 msg = consumer.poll(1.0)
             except:
-                return "plz create RAWDATA TOPIC"
+                return "Error: rawdataGPS topic is not created, please create it !"
 
             if msg is None:
-                print("aucun msg")
                 continue
             message = msg.value()
 
             if message is not None:
                 # cast data to consumer object
                 rowdata = ConsumerRawDataGPS(message)
-                print(rowdata.dict())
-                # check if get_id exist in data else create it
+                # check if get_participant_virtual_id exists in dictionary else create it
                 if rowdata.get_participant_virtual_id() in data.keys():
                     data.get(rowdata.get_participant_virtual_id()
                              ).append(rowdata)
                 else:
                     data[rowdata.get_participant_virtual_id()] = [rowdata]
 
-            # check if the number of values is reached
+            # check if there is enough data to start the pre-processing
             key = rate_done(data)
 
             if (key != "No"):
-                # run preprocessingGPS algo
+                # get dataframe from dictionary values
                 df = get_df(data.get(key))
-                print(df["id"].values)
-                break
-                print(df)
+
+                # print(df)
+
+                # run preprocessingGPS algo
                 df = run(df)
 
                 # delete values from memory
@@ -110,6 +109,8 @@ def preprocessing_gps():
                 save_data(df)
 
         except KeyboardInterrupt:
+            print(
+                f'Stopped listening to messages on topic {TOPIC_NAME_CONSUME}')
             break
 
     consumer.close()
@@ -120,7 +121,7 @@ def preprocessing_gps():
 def rate_done(data):
     for key in data.keys():
         if (len(data.get(key)) == 20):
-            print("rate done for key " + str(key))
+            print("There is enough data for key " + str(key))
             return key
         else:
             return "No"
@@ -129,26 +130,24 @@ def rate_done(data):
 def save_data(df):
     print("save_data")
     print(df)
-    print(str(df['time'][0]))
-    produced_message_count = 0
-    for ind in df.index:
-        msg = ProducerRawDataGPS(dict(
-            participant_virtual_id=str(df['participant_virtual_id'][ind]),
-            time=str(df['time'][ind]),
-            lat=float(df['lat'][ind]),
-            lon=float(df['lon'][ind]),
-            hilbert=int(df['hilbert'][ind]),
-            activity=str(df['activity'][ind])
-        ))
-        producer.produce(topic=TOPIC_NAME_PRODUCE, key=str(uuid4()), value=msg)
-        produced_message_count += 1
-        producer.flush()
-    print(f"Produced {produced_message_count}message")
-
-
-def get_data():
-
-    return True
+    if df.empty:
+        print("Dataframe is empty, no message to produce !")
+    else:
+        produced_message_count = 0
+        for ind in df.index:
+            msg = ProducerRawDataGPS(dict(
+                participant_virtual_id=str(df['participant_virtual_id'][ind]),
+                time=str(df['time'][ind]),
+                lat=float(df['lat'][ind]),
+                lon=float(df['lon'][ind]),
+                hilbert=int(df['hilbert'][ind]),
+                activity=str(df['activity'][ind])
+            ))
+            producer.produce(topic=TOPIC_NAME_PRODUCE,
+                             key=str(uuid4()), value=msg)
+            produced_message_count += 1
+            producer.flush()
+        print(f"Produced {produced_message_count} message")
 
 
 def get_df(l):
@@ -161,7 +160,7 @@ def get_df(l):
 
 
 def run(df):
-    # run preprocessing algo
+    # run GPS pre-processing algo
     try:
         df = data_pre_processing_gps(df)
         return df
