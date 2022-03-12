@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 
-import TrajectoryDescriptor
-import TrajectoryFeatures
+import dependancies.TrajectoryDescriptor
+import dependancies.TrajectoryFeatures
 
 
 class Trajectory:
@@ -14,7 +14,8 @@ class Trajectory:
         if kwargs['mood'] == 'csv':
             self.raw_data = self.load_data(kwargs)
         self.rows_ = self.raw_data.shape[0]
-        self.stop_parameters = kwargs.get('stop_parameters', [100, 60, 60, 100])
+        self.stop_parameters = kwargs.get(
+            'stop_parameters', [100, 60, 60, 100])
 
         self.has_alt = True
 
@@ -27,7 +28,7 @@ class Trajectory:
         self.distance_features = []
         self.bearing_features = []
         self.label = ''
-        self.noise_no=0
+        self.noise_no = 0
         self.polartheta = []
         self.polarR = []
         self.isPure = False
@@ -37,12 +38,11 @@ class Trajectory:
         self.hasAlt = False  # False: we do not have altitude in dataset
 
         # self.descriptor=TrajectoryDescriptor.TrajectoryDescriptor(trajectory=self.raw_data, labels=self.labels)
-        #print("smothing..")
-        #self.raw_data,noise=self.g_hample(self.raw_data)
-        #self.noise_no=len(noise)
-	#if self.noise_no>0 :
-	#   print("# noise points:",len(noise))
-
+        # print("smothing..")
+        # self.raw_data,noise=self.g_hample(self.raw_data)
+        # self.noise_no=len(noise)
+        # if self.noise_no>0 :
+        #   print("# noise points:",len(noise))
 
     def rows(self):
         return self.rows_
@@ -93,7 +93,8 @@ class Trajectory:
         # other = [self.isInValid, self.isPure, self.stat_label()]
 
         # return self.distance_features + self.speed_features + self.acc_features + self.bearing_features + self.jerk_features + self.brate_features + self.brate_rate_features + other
-        self.descriptor = TrajectoryDescriptor.TrajectoryDescriptor(trajectory=self.raw_data, labels=self.labels, stop_parameters=self.stop_parameters)
+        self.descriptor = TrajectoryDescriptor.TrajectoryDescriptor(
+            trajectory=self.raw_data, labels=self.labels, stop_parameters=self.stop_parameters)
         ret = self.descriptor.describe()
         return ret
 
@@ -123,14 +124,16 @@ class Trajectory:
         print(time_date)
         labels = kwargs.get('labels', "[label]")
         print(labels)
-        src = kwargs.get('src', "~/gps_fe/bigdata2_8696/ex_traj/5428_walk_790.csv")
+        src = kwargs.get(
+            'src', "~/gps_fe/bigdata2_8696/ex_traj/5428_walk_790.csv")
         print(src)
         separator = kwargs.get('separator', ",")
         print(separator)
 
         self.labels = labels
         # input data needs lat,lon,alt,timeDate, [Labels]
-        self.raw_data = pd.read_csv(src, sep=separator, parse_dates=[time_date], index_col=time_date)
+        self.raw_data = pd.read_csv(src, sep=separator, parse_dates=[
+                                    time_date], index_col=time_date)
         self.raw_data.rename(columns={lat: 'lat'}, inplace=True)
         self.raw_data.rename(columns={lon: 'lon'}, inplace=True)
         if alt is not None:
@@ -142,7 +145,8 @@ class Trajectory:
         self.raw_data = self.raw_data.loc[pd.notnull(self.raw_data.lat), :]
         self.raw_data = self.raw_data.loc[pd.notnull(self.raw_data.lon), :]
         for label in labels:
-            self.raw_data = self.raw_data.loc[pd.notnull(self.raw_data[label]), :]
+            self.raw_data = self.raw_data.loc[pd.notnull(
+                self.raw_data[label]), :]
 
         print('Data loaded.')
         return self.raw_data
@@ -164,7 +168,8 @@ class Trajectory:
         self.raw_data = self.raw_data.loc[pd.notnull(self.raw_data.lat), :]
         self.raw_data = self.raw_data.loc[pd.notnull(self.raw_data.lon), :]
         for label in labels:
-            self.raw_data = self.raw_data.loc[pd.notnull(self.raw_data[label]), :]
+            self.raw_data = self.raw_data.loc[pd.notnull(
+                self.raw_data[label]), :]
         """
         lat_= self.raw_data.lat.rolling(3, min_periods=1).median()
         self.raw_data.assign(lat=lat_)
@@ -216,25 +221,30 @@ class Trajectory:
         bearing_mean = sub_traj.bearing.mean()
 
         speed_token = self.tokenize_sub_trajectory(start=0, end=15, start_word="s0", end_word="se",
-                                                   dic_speed=['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9'],
+                                                   dic_speed=[
+                                                       's1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9'],
                                                    speed_intr=[(0, 0.5), (0.5, 1), (1, 1.5), (1.5, 2.5), (2.5, 4),
-                                                               (4, 7), (7, 10), (10, 13),
+                                                               (4, 7), (7,
+                                                                        10), (10, 13),
                                                                (13, 15)],
                                                    invalid_word="si", c=speed_mean)
 
         acc_token = self.tokenize_sub_trajectory(start=-0.15, end=1, start_word="a0", end_word="ae",
-                                                 dic_speed=['a1', 'a2', 'a3', 'a4', 'a5', 'a6'],
+                                                 dic_speed=[
+                                                     'a1', 'a2', 'a3', 'a4', 'a5', 'a6'],
                                                  speed_intr=[(-0.15, -0.1), (-0.1, -0.05), (-0.05, -0.025),
                                                              (-0.025, +0.025), (0.025, 0.5), (0.5, 1)],
                                                  invalid_word="ai", c=acc_mean)
 
         bearing_token = self.tokenize_sub_trajectory(start=0, end=360, start_word="b0", end_word="be",
-                                                     dic_speed=['b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7'],
+                                                     dic_speed=[
+                                                         'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7'],
                                                      speed_intr=[(0, 50), (50, 100), (100, 150), (150, 200), (200, 250),
                                                                  (250, 300),
                                                                  (300, 360)],
                                                      invalid_word="bi", c=bearing_mean)
-        subtrajectory_token = speed_token + " " + acc_token + " " + bearing_token + " " + "@@"
+        subtrajectory_token = speed_token + " " + \
+            acc_token + " " + bearing_token + " " + "@@"
         return subtrajectory_token
 
     def sub_trajectory_speed_token(self, sub_traj):
@@ -245,9 +255,12 @@ class Trajectory:
                                                               's4.5', 's5', 's5.5', 's6', 's6.5', 's7', 's7.5', 's8',
                                                               's8.5', 's9', 's13', 's15', 's30', 's50', 's100'],
                                                    speed_intr=[(0, 0.5), (0.5, 1), (1, 1.5), (1.5, 2), (2, 2.5),
-                                                               (2.5, 3), (3, 3.5), (3.5, 4),
-                                                               (4, 4.5), (4.5, 5), (5, 5.5), (5.5, 6), (6, 6.5),
-                                                               (6.5, 7), (7, 7.5), (7.5, 8), (8, 8.5), (8.5, 9),
+                                                               (2.5, 3), (3,
+                                                                          3.5), (3.5, 4),
+                                                               (4, 4.5), (4.5, 5), (5,
+                                                                                    5.5), (5.5, 6), (6, 6.5),
+                                                               (6.5, 7), (7, 7.5), (7.5,
+                                                                                    8), (8, 8.5), (8.5, 9),
                                                                (9, 13),
                                                                (13, 15), (15, 30), (30, 50), (50, 100)],
                                                    invalid_word="si", c=speed_mean)
@@ -259,7 +272,8 @@ class Trajectory:
         acc_mean = sub_traj.acc.mean()
 
         acc_token = self.tokenize_sub_trajectory(start=-0.15, end=1, start_word="N0", end_word="Pe",
-                                                 dic_speed=['N-1', 'N-0.5', 'N-0.025', 'NN', 'P0.05', 'P1'],
+                                                 dic_speed=[
+                                                     'N-1', 'N-0.5', 'N-0.025', 'NN', 'P0.05', 'P1'],
                                                  speed_intr=[(-0.15, -0.1), (-0.1, -0.05), (-0.05, -0.025),
                                                              (-0.025, +0.025), (0.025, 0.5), (0.5, 1)],
                                                  invalid_word="ai", c=acc_mean)
@@ -277,12 +291,17 @@ class Trajectory:
                         'b318', 'b324', 'b330', 'b336', 'b342', 'b348', 'b354', 'b360']
         bearing_intr_ = [(0, 6), (6, 12), (12, 18), (18, 24), (24, 30), (30, 36), (36, 42), (42, 48), (48, 54),
                          (54, 60), (60, 66),
-                         (66, 72), (72, 78), (78, 84), (84, 90), (90, 96), (96, 102), (102, 108), (108, 114),
+                         (66, 72), (72, 78), (78, 84), (84, 90), (90,
+                                                                  96), (96, 102), (102, 108), (108, 114),
                          (114, 120),
-                         (120, 126), (126, 130), (130, 136), (136, 142), (142, 148), (148, 154), (154, 160), (160, 166),
-                         (166, 172), (172, 178), (178, 184), (184, 190), (190, 196), (196, 204), (204, 210), (210, 216),
-                         (216, 222), (222, 228), (228, 234), (234, 240), (240, 246), (246, 252), (252, 258), (258, 264),
-                         (264, 270), (270, 276), (276, 282), (282, 288), (288, 294), (294, 300), (300, 306), (306, 312),
+                         (120, 126), (126, 130), (130, 136), (136, 142), (142,
+                                                                          148), (148, 154), (154, 160), (160, 166),
+                         (166, 172), (172, 178), (178, 184), (184, 190), (190,
+                                                                          196), (196, 204), (204, 210), (210, 216),
+                         (216, 222), (222, 228), (228, 234), (234, 240), (240,
+                                                                          246), (246, 252), (252, 258), (258, 264),
+                         (264, 270), (270, 276), (276, 282), (282, 288), (288,
+                                                                          294), (294, 300), (300, 306), (306, 312),
                          (312, 318), (318, 324), (324, 330), (330, 336), (336, 342), (342, 348), (348, 354), (354, 360)]
 
         bearing_token = self.tokenize_sub_trajectory(start=0, end=360, start_word="b0", end_word="be",
@@ -302,7 +321,8 @@ class Trajectory:
         trajectory_text = ""
         d, subtraj = self.discretization_by_records(n=11)
         for i in subtraj:
-            trajectory_text = trajectory_text + " " + self.sub_trajectory_token(subtraj[i])
+            trajectory_text = trajectory_text + " " + \
+                self.sub_trajectory_token(subtraj[i])
         trajectory_text = trajectory_text + " @"
         return trajectory_text
 
@@ -310,7 +330,8 @@ class Trajectory:
         trajectory_text = ""
         d, subtraj = self.discretization_by_records(n=11)
         for i in subtraj:
-            trajectory_text = trajectory_text + " " + self.sub_trajectory_speed_token(subtraj[i])
+            trajectory_text = trajectory_text + " " + \
+                self.sub_trajectory_speed_token(subtraj[i])
         trajectory_text = trajectory_text + " @"
         return trajectory_text
 
@@ -318,7 +339,8 @@ class Trajectory:
         trajectory_text = ""
         d, subtraj = self.discretization_by_records(n=11)
         for i in subtraj:
-            trajectory_text = trajectory_text + " " + self.sub_trajectory_acc_token(subtraj[i])
+            trajectory_text = trajectory_text + " " + \
+                self.sub_trajectory_acc_token(subtraj[i])
         trajectory_text = trajectory_text + " @"
         return trajectory_text
 
@@ -326,7 +348,8 @@ class Trajectory:
         trajectory_text = ""
         d, subtraj = self.discretization_by_records(n=11)
         for i in subtraj:
-            trajectory_text = trajectory_text + " " + self.sub_trajectory_bearing_token(subtraj[i])
+            trajectory_text = trajectory_text + " " + \
+                self.sub_trajectory_bearing_token(subtraj[i])
         trajectory_text = trajectory_text + " @"
         return trajectory_text
 
@@ -375,7 +398,8 @@ class Trajectory:
     # 'collected_time','t_user_id','latitude','longitude','altitude'
     def load_trajectory_from_CSV(self, csvFile='~/gps_fe/bigdata2_8696/ex_traj/5428_walk_790.csv'):
 
-        self.raw_data = pd.read_csv(csvFile, sep=',', parse_dates=['collected_time'], index_col='collected_time')
+        self.raw_data = pd.read_csv(csvFile, sep=',', parse_dates=[
+                                    'collected_time'], index_col='collected_time')
 
     def check_header(self):
         if self.raw_data.columns[0] == 'collected_time':
@@ -386,14 +410,15 @@ class Trajectory:
         del self.raw_data
         # print 'clear memory'
 
-    def g_hample(self,df, k=5, se=3, show_error_bound=False, plot=False, update=True, remove_noise=False):
+    def g_hample(self, df, k=5, se=3, show_error_bound=False, plot=False, update=True, remove_noise=False):
         lat = df.lat.values
         lon = df.lon.values
         if len(lat) != len(lon):
             raise AssertionError("lat and long must be same length.")
 
         if len(lat) < (2 * k + 1):
-            raise AssertionError("lat must be longer than 2k+1,n=" + str(len(lat)))
+            raise AssertionError(
+                "lat must be longer than 2k+1,n=" + str(len(lat)))
 
         lat_min = np.percentile(lat, 0.05)
         lat_max = np.percentile(lat, 0.95)

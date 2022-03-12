@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
-from Distances import Distances
+from dependancies.Distances import Distances
 from collections import namedtuple
-from CBSmot import CBSmot
+from dependancies.CBSmot import CBSmot
 
 
 class TrajectoryFeatureExtractor:
@@ -76,7 +76,7 @@ class TrajectoryFeatureExtractor:
         for i in range(len(self.stops)):
             t1 = self.stops[i].index.values[0]
             t2 = self.stops[i].index.values[-1]
-            stop_times.append((t2-t1).item()/ 1000000000)
+            stop_times.append((t2-t1).item() / 1000000000)
         return pd.Series(stop_times) if len(stop_times) > 0 else pd.Series([0])
 
     def get_stop_total(self):
@@ -89,9 +89,13 @@ class TrajectoryFeatureExtractor:
 
     def get_list_of_features(self):
         return [self.get_start_time(), self.get_end_time(), self.get_is_week_day(), self.get_day_of_week(),
-                self.get_duration_in_second(), self.get_distance_travelled(), self.get_start_end_distance(),
-                self.get_start_lat(), self.get_start_lon(), self.get_end_lat(), self.get_end_lon(),
-                self.get_number_self_intersect(), self.get_distance_by_day(0), self.get_distance_by_day(1),
-                self.get_distance_by_day(2), self.get_distance_by_day(3), self.get_distance_by_day(4),
-                self.get_distance_by_day(5), self.get_distance_by_day(6), self.get_stop_total(),
-                self.get_stop_over_total()]
+                self.get_duration_in_second(), self.get_distance_travelled(
+        ), self.get_start_end_distance(),
+            self.get_start_lat(), self.get_start_lon(), self.get_end_lat(), self.get_end_lon(),
+            self.get_number_self_intersect(), self.get_distance_by_day(
+                    0), self.get_distance_by_day(1),
+            self.get_distance_by_day(2), self.get_distance_by_day(
+                    3), self.get_distance_by_day(4),
+            self.get_distance_by_day(5), self.get_distance_by_day(
+                    6), self.get_stop_total(),
+            self.get_stop_over_total()]

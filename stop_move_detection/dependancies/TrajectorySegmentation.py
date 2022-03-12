@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from CBSmot import CBSmot
+from dependancies.CBSmot import CBSmot
 
 # pd.options.mode.chained_assignment = 'raise'
 # pd.options.mode.chained_assignment = None
@@ -12,7 +12,7 @@ class TrajectorySegmentation:
     meanTime:
         is the indicator for split sequence of data to sub trajectories
         meanTime default is the mean of duration of the input trajectory
-        
+
     minimumNumberOfitemsInTraj:
         is the minimum number of records allowed to make a subtrajectory
     """
@@ -40,7 +40,8 @@ class TrajectorySegmentation:
         print(time_date)
         labels = kwargs.get('labels', "['target']")
         print(labels)
-        src = kwargs.get('src', "~/gps_fe/bigdata2_8696/ex_traj/5428_walk_790.csv")
+        src = kwargs.get(
+            'src', "~/gps_fe/bigdata2_8696/ex_traj/5428_walk_790.csv")
         print(src)
         seperator = kwargs.get('seperator', ",")
         print(seperator)
@@ -51,19 +52,20 @@ class TrajectorySegmentation:
         #self.row_data = self.row_data.drop_duplicates(time_date)
         #self.row_data = pd.read_csv(src, sep=seperator, parse_dates=[time_date],index_col=time_date)
         #self.raw_data = self.raw_data.drop_duplicates(['t_user_id',time_date])
-        #self.raw_data.set_index(time_date)
+        # self.raw_data.set_index(time_date)
 
         self.row_data.rename(columns={(lat): ('lat')}, inplace=True)
         self.row_data.rename(columns={(lon): ('lon')}, inplace=True)
         if alt != None:
             self.row_data.rename(columns={(alt): ('alt')}, inplace=True)
             self.hasAlt = True
-        self.row_data.rename(columns={(time_date): ('time_date')}, inplace=True)
+        self.row_data.rename(
+            columns={(time_date): ('time_date')}, inplace=True)
         #self.raw_data = self.raw_data.drop_duplicates(['t_user_id','time_date'])
         #self.raw_data = self.raw_data.set_index('time_date')
 
         # sort data first
-        #self.raw_data=self.raw_data.sort_index()
+        # self.raw_data=self.raw_data.sort_index()
         self.row_data['day'] = self.row_data.index.date
 
         # preprocessing
@@ -79,7 +81,7 @@ class TrajectorySegmentation:
         print('Data loaded.')
         return self.row_data
 
-    def multi_label_segmentation(self, labels=['t_user_id', 'transportation_mode'],max_points=1000,max_length=False):
+    def multi_label_segmentation(self, labels=['t_user_id', 'transportation_mode'], max_points=1000, max_length=False):
 
         segments = []
         start = 0
@@ -97,36 +99,36 @@ class TrajectorySegmentation:
 
                 stseg = self.row_data.iloc[start:end, :]
                 s, sta = self.onelabelsegmentation(stseg, label)
-                j=0
-                sn=[]
+                j = 0
+                sn = []
                 for x in range(len(s)):
-                    #discritize if more than max_points=1000
+                    # discritize if more than max_points=1000
                     #print(s[x][0] + start, s[x][1]+start,start)
                     leng = s[x][1] - s[x][0]
                     start2 = start + s[x][0]
-                    if (max_length==False)&(leng >=max_points):
-                        leng=s[x][1]-s[x][0]
+                    if (max_length == False) & (leng >= max_points):
+                        leng = s[x][1]-s[x][0]
 
-                        idx = np.array(range(leng ))
+                        idx = np.array(range(leng))
                         f = idx[idx % max_points == 0]
-                        if len(f[1:])==0:
+                        if len(f[1:]) == 0:
                             sn.append([s[x][0] + start, s[x][1] + start])
                             #print("good segment",sn)
                         else:
-                            #print("idx",idx,f[1:],len(f[1:]))
-                            if leng-f[1:][-1]<10:
-                                f[1:][-1]=leng
+                            # print("idx",idx,f[1:],len(f[1:]))
+                            if leng-f[1:][-1] < 10:
+                                f[1:][-1] = leng
 
                             d = list(zip(f[:-1], f[1:]))
-                            if f[1:][-1]!=leng:
-                                d.append((f[1:][-1],leng))
+                            if f[1:][-1] != leng:
+                                d.append((f[1:][-1], leng))
                             subtrajectories = {}
                             for i in d:
-                                #print(i)
-                                #s[i] =
+                                # print(i)
+                                # s[i] =
                                 sn.append([i[0] + start2, i[1] + start2])
                              #   print(j,i[0] + start2, i[1] + start2)
-                                j=j+1
+                                j = j+1
                                 #subtrajectories[i] = self.raw_data.iloc[i[0]:i[1], :]
                             del f
                             del idx
@@ -134,8 +136,8 @@ class TrajectorySegmentation:
 
                         #sn[j] = (s[x][0] + start, s[x][1] + start)
                         sn.append([s[x][0] + start, s[x][1] + start])
-                        j=j+1
-                    #print(sn)
+                        j = j+1
+                    # print(sn)
                 # d=map(lambda (x, y):(x + start, y + start), s)
                 #  print "start:",start,"s",s,"d:",d
                 new_segments.extend(sn)
@@ -158,7 +160,7 @@ class TrajectorySegmentation:
         # seg=5682
         # print nst[0],len(nst)
         # print seg,nst[seg]
-        return segments, trajectorySegments;
+        return segments, trajectorySegments
 
     def onelabelsegmentation(self, df, label='transportation_mode'):
         t = df[label].values
@@ -220,7 +222,7 @@ class TrajectorySegmentation:
         trajectorySegments = {}
         i = 0
         for segment in segments:
-            trajectorySegments[i] = self.row_data.iloc[segment[0]:segment[1], :]
+            trajectorySegments[i] = self.row_data.iloc[segment[0]                                                       :segment[1], :]
             i = i + 1
         del df
         del t1
@@ -230,7 +232,8 @@ class TrajectorySegmentation:
 
     def segmentByStopMove(self, max_dist=100, min_time=60, time_tolerance=60, merge_tolerance=100):
         cbsmote = CBSmot()
-        index, stops = cbsmote.segment_stops_moves(self.row_data, max_dist, min_time, time_tolerance, merge_tolerance)
+        index, stops = cbsmote.segment_stops_moves(
+            self.row_data, max_dist, min_time, time_tolerance, merge_tolerance)
         index_move = []
         moves = []
         start = 0
@@ -239,8 +242,10 @@ class TrajectorySegmentation:
                 start = self.row_data.index.get_loc(valor[1])+1
                 continue
             end = self.row_data.index.get_loc(valor[0])-1
-            moves.append(self.row_data.loc[self.row_data.index[start]:self.row_data.index[end], :])
-            index_move.append([self.row_data.index[start], self.row_data.index[end]])
+            moves.append(
+                self.row_data.loc[self.row_data.index[start]:self.row_data.index[end], :])
+            index_move.append(
+                [self.row_data.index[start], self.row_data.index[end]])
             start = self.row_data.index.get_loc(valor[1])+1
         return index+index_move, stops+moves
 

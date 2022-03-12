@@ -1,4 +1,4 @@
-import Distances as d
+import dependancies.Distances as d
 import pandas as pd
 # import numpy as np
 
@@ -139,7 +139,7 @@ class CBSmot:
                     stops.append(traj.loc[p1:p2])
                     index.append([p1, p2])
 
-        index, stops = self.merge_stop_segment(stops, max_dist, merge_tolerance, index)
+        index, stops = self.merge_stop_segment(
+            stops, max_dist, merge_tolerance, index)
         index, stops = self.clean_stops_segment(stops, min_time, index)
         return index, stops
-

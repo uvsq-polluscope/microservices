@@ -1,4 +1,4 @@
-#import locale file
+# import locale file
 from ast import Delete, Pass
 from uuid import uuid4
 from object.helpers import todict
@@ -52,7 +52,7 @@ TOPIC_NAME_PRODUCE = "ProducerRawDataSMD"
 
 producer_conf = {"bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
                  "key.serializer": StringSerializer("utf_8"),
-                 "value.serializer": AvroSerializer(schema_str=PRoducer_Move_Stop_Detection.schema,
+                 "value.serializer": AvroSerializer(schema_str=ProducerRawDataSMD.schema,
                                                     schema_registry_client=schema_registry_client,
                                                     to_dict=todict)}
 
@@ -62,6 +62,7 @@ producer = SerializingProducer(producer_conf)
 @app.get("/")
 def runing():
     return "Hi stop_move_detection microserivce is runing"
+
 
 @app.get("/stop_move_detection_algo")
 def stop_move_detection_algo():
@@ -85,7 +86,8 @@ def stop_move_detection_algo():
                 rowdata = ConsumerRawDataSMD(message)
                 # check if get_participant_virtual_id exists in dictionary else create it
                 if rowdata.get_participant_virtual_id() in data.keys():
-                    data.get(rowdata.get_participant_virtual_id()).append(rowdata)
+                    data.get(rowdata.get_participant_virtual_id()
+                             ).append(rowdata)
                 else:
                     data[rowdata.get_participant_virtual_id()] = [rowdata]
 
@@ -116,6 +118,7 @@ def stop_move_detection_algo():
 
     return True
 
+
 def rate_done(data):
     for key in data.keys():
         if (len(data.get(key)) == 20):
@@ -123,6 +126,7 @@ def rate_done(data):
             return key
         else:
             return "No"
+
 
 def save_data(df):
     print("save_data")
@@ -133,23 +137,27 @@ def save_data(df):
         produced_message_count = 0
         for ind in df.index:
             msg = ProducerRawDataSMD(dict(
-                participant_virtual_id=str(original_data['participant_virtual_id'][ind]),
+                participant_virtual_id=str(
+                    original_data['participant_virtual_id'][ind]),
                 time=str(original_data['time'][ind]),
                 activity=str(original_data['activity'][ind]),
                 detected_label=float(original_data['detected_label'][ind])
             ))
-            producer.produce(topic=TOPIC_NAME_PRODUCE,key=str(uuid4()), value=msg)
+            producer.produce(topic=TOPIC_NAME_PRODUCE,
+                             key=str(uuid4()), value=msg)
             produced_message_count += 1
             producer.flush()
         print(f"Produced {produced_message_count} message")
 
+
 def get_df(l):
     # from list of object to dataframe
     data = pd.DataFrame(
-        [], columns=['participant_virtual_id', 'time', 'lat', 'lon','hilbert','activity'])
+        [], columns=['participant_virtual_id', 'time', 'lat', 'lon', 'hilbert', 'activity'])
     for elm in l:
         data = data.append(elm.__dict__, ignore_index=True)
     return data
+
 
 def run(df):
     # run stop move detection algorithme

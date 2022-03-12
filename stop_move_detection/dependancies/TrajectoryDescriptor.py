@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
-import TrajectoryDescriptorFeature as tdf
-from TrajectoryFeatureExtractor import TrajectoryFeatureExtractor
+import dependancies.TrajectoryDescriptorFeature as tdf
+from dependancies.TrajectoryFeatureExtractor import TrajectoryFeatureExtractor
 
 
 class TrajectoryDescriptor:
@@ -10,7 +10,8 @@ class TrajectoryDescriptor:
         self.isPure = False
         self.row_data = kwargs.get('trajectory', pd.DataFrame())
         self.labels = kwargs.get('labels', ['target'])
-        self.stop_parameters = kwargs.get('stop_parameters', [100, 60, 60, 100])
+        self.stop_parameters = kwargs.get(
+            'stop_parameters', [100, 60, 60, 100])
         if self.row_data.shape[0] == 0:
             self.isInValid = True
         self.purity_labels = self.purity()
@@ -20,12 +21,14 @@ class TrajectoryDescriptor:
         if len(self.purity_labels) == 1:
             return list(self.purity_labels.keys())[0]
         else:
-            #return self.purity_labels[0]
+            # return self.purity_labels[0]
             print(self.row_data)
-            sorted_dic = sorted(self.purity_labels, key=self.purity_labels.get, reverse=True)
-            #return list(sorted_dic.keys())[0]  #TODO descobrir erro
-            return 'Rien'  #Hafsa added this because there is no recorded activity and it returns an error, so I added 'rien'. 
-        #I won't use this activity
+            sorted_dic = sorted(self.purity_labels,
+                                key=self.purity_labels.get, reverse=True)
+            # return list(sorted_dic.keys())[0]  #TODO descobrir erro
+            # Hafsa added this because there is no recorded activity and it returns an error, so I added 'rien'.
+            return 'Rien'
+        # I won't use this activity
 
     def purity(self):
         label_dic = {}
@@ -39,7 +42,8 @@ class TrajectoryDescriptor:
 
     def describe(self):
         trajectory_descriptor_feature = tdf.TrajectoryDescriptorFeature()
-        tfe = TrajectoryFeatureExtractor(trajectory=self.row_data, stop_parameters=self.stop_parameters)
+        tfe = TrajectoryFeatureExtractor(
+            trajectory=self.row_data, stop_parameters=self.stop_parameters)
         stops = tfe.get_stop_times()
         stops_rate = 0 if len(stops) == 1 and stops[0] == 0 else len(stops)
 
@@ -47,7 +51,8 @@ class TrajectoryDescriptor:
         trajectory_descriptor_feature.reset()
         other = [self.isInValid, self.isPure, self.target_label, stops_rate]
         other = other + tfe.get_list_of_features()
-        distance = trajectory_descriptor_feature.describe(self.row_data.distance)
+        distance = trajectory_descriptor_feature.describe(
+            self.row_data.distance)
 
         trajectory_descriptor_feature.reset()
         speed = trajectory_descriptor_feature.describe(self.row_data.speed)
@@ -70,14 +75,16 @@ class TrajectoryDescriptor:
         trajectory_descriptor_feature.reset()
         stop_time = trajectory_descriptor_feature.describe(stops)
 
-        ret = distance + speed + acc + bearing + jerk + brate + brrate + stop_time + other
+        ret = distance + speed + acc + bearing + \
+            jerk + brate + brrate + stop_time + other
 
         return ret
 
     def get_full_features_column_name(self):
         other = ['isInValid', 'isPure', 'target']
 
-        features = np.array(['min_', 'max_', 'mean', 'median', 'std', 'p10', 'p25', 'p50', 'p75', 'p90'])
+        features = np.array(
+            ['min_', 'max_', 'mean', 'median', 'std', 'p10', 'p25', 'p50', 'p75', 'p90'])
 
         speed_features = np.array(['speed_'] * len(features))
         speed_features = map(''.join, zip(speed_features, features))
@@ -98,8 +105,8 @@ class TrajectoryDescriptor:
         brate_features = map(''.join, zip(brate_features, features))
 
         brate_rate__features = np.array(['brate_rate_'] * len(features))
-        brate_rate__features = map(''.join, zip(brate_rate__features, features))
-
+        brate_rate__features = map(
+            ''.join, zip(brate_rate__features, features))
 
         ret = map(''.join, zip(distance_features, speed_features, acc_features, bearing_features,
                                jerk_features, brate_features, brate_rate__features, other))

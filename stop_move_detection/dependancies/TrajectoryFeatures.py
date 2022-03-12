@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 #import pywt as pywavelets
 from scipy.signal import lfilter
-import Distances as d
+import dependancies.Distances as d
 
 
 def mad(a):
@@ -19,7 +19,8 @@ def wavelet_smoother(x, wavelet="db4", level=1, title=None):
     coeff = pywavelets.wavedec(x, wavelet, mode="per")
     sigma = mad(coeff[-level])
     uthresh = sigma * np.sqrt(2 * np.log(len(x)))
-    coeff[1:] = (pywavelets.threshold(i, value=uthresh, mode="soft") for i in coeff[1:])
+    coeff[1:] = (pywavelets.threshold(i, value=uthresh, mode="soft")
+                 for i in coeff[1:])
     return pywavelets.waverec(coeff, wavelet, mode="per")
 
 
@@ -47,8 +48,6 @@ class TrajectoryFeatures:
 
         self.get_brrate(smooth=self.smooth_)  # 8
 
-
-
     def smoother(self, signal, n=100, a=1, level1=0, level2=0, plot=False):
         b = [1.0 / n] * n
         yy = lfilter(b, a, signal)
@@ -74,7 +73,8 @@ class TrajectoryFeatures:
         return yy
 
     def get_duration(self):
-        t = np.diff(pd.to_datetime(self.row_data.index)) / 1000000000  # convert to second
+        t = np.diff(pd.to_datetime(self.row_data.index)) / \
+            1000000000  # convert to second
         t = t.astype(np.float64)
         t = np.append(t[0:], t[-1:])
         tmp = self.row_data.assign(td=t)
@@ -87,7 +87,8 @@ class TrajectoryFeatures:
         return t
 
     def get_theta(self):
-        self.polartheta = np.arctan(self.row_data['lon'] / self.row_data['lat'])
+        self.polartheta = np.arctan(
+            self.row_data['lon'] / self.row_data['lat'])
         if 'theta' in self.row_data.columns:
             self.row_data.assign(theta=self.polartheta)
         else:
@@ -95,7 +96,8 @@ class TrajectoryFeatures:
         return self.polartheta
 
     def get_r(self):
-        self.polarR = np.sqrt(self.row_data['lon'] ** 2 + self.row_data['lat'] ** 2)
+        self.polarR = np.sqrt(
+            self.row_data['lon'] ** 2 + self.row_data['lat'] ** 2)
         self.row_data.assign(R=self.R)
 
         return self.polarR
@@ -155,7 +157,8 @@ class TrajectoryFeatures:
 
         lat1, lat2, diff_long = map(np.radians, (lat, lat2, lon2 - lon))
         a = np.sin(diff_long) * np.cos(lat2)
-        b = np.cos(lat1) * np.sin(lat2) - (np.sin(lat1) * np.cos(lat2) * np.cos(diff_long))
+        b = np.cos(lat1) * np.sin(lat2) - (np.sin(lat1)
+                                           * np.cos(lat2) * np.cos(diff_long))
         bearing_val = np.arctan2(a, b)
         bearing_val = np.degrees(bearing_val)
         bearing_val = (bearing_val + 360) % 360
@@ -181,7 +184,8 @@ class TrajectoryFeatures:
 
     def get_brate(self, smooth=False):
         compass_bearingdiff = np.diff(self.row_data.bearing)
-        compass_bearingdiff = np.append(compass_bearingdiff, compass_bearingdiff[-1:])
+        compass_bearingdiff = np.append(
+            compass_bearingdiff, compass_bearingdiff[-1:])
         brate_val = compass_bearingdiff / self.row_data.td
         if smooth:
             brate_val = self.smoother(brate_val)
@@ -198,4 +202,3 @@ class TrajectoryFeatures:
             brrate_val = self.smoother(brrate_val)
         self.row_data = self.row_data.assign(brrate=brrate_val)
         return brrate_val
-
