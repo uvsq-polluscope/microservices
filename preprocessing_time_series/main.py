@@ -143,10 +143,16 @@ def save_data(df) :
                     imputed_BC=bool(df['imputed BC'][ind]) if type(df['imputed BC'][ind]) != type(None) else bool(False),
                     Speed=float(df['vitesse(m/s)'][ind]) if type(df['vitesse(m/s)'][ind]) != type(None) else float(0.0)
                 ))
-                print(msg.imputed_PM25)
                 producer.produce(topic=TOPIC_NAME_PRODUCE,key=str(uuid4()),value=msg)
                 print(f"Produced message: {msg.dict()}")
                 producer.flush()
+
+def fill(data) : 
+    values = {}
+    for c in  data.columns:
+        if len(data[data[c].isna()]) == 60 : 
+            values[c] = 0.0
+    return data.fillna(value= values)
 
 def get_df(l) : 
     print("generate dataframe")
@@ -162,6 +168,8 @@ def get_df(l) :
     del data["PM25"]
     del data["PM1"]
     del data["vitesse"]
+
+    data = fill(data)
 
     return data
 

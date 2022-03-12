@@ -1665,36 +1665,61 @@ def fill_values(df,columns):
         
         if "Temperature" in columns:
             while len(sample_Temperature)!=5:
+                print(len(sample_Temperature))
                 print("appending mean")
                 sample_Temperature.append(mean(sample_Temperature))
+                if(len(sample_Temperature) > 5):
+                    sample_Temperature = sample_Temperature[:5]
+                    break
             train_Temperature.append(sample_Temperature)
         if "Humidity" in columns:                    
             while len(sample_Humidity)!=5:
                 sample_Humidity.append(mean(sample_Humidity))
+                if(len(sample_Humidity) > 5):
+                    sample_Humidity = sample_Humidity[:5]
+                    break
             train_Humidity.append(sample_Humidity)
         if "NO2" in columns:
             while len(sample_NO2)!=5:
                 sample_NO2.append(mean(sample_NO2))
+                if(len(sample_NO2) > 5):
+                    sample_NO2 = sample_NO2[:5]
+                    break
             train_NO2.append(sample_NO2)
         if "BC" in columns:
             while len(sample_BC)!=5:
                 sample_BC.append(mean(sample_BC))
+                if(len(sample_BC) > 5):
+                    sample_BC = sample_BC[:5]
+                    break
             train_BC.append(sample_BC)
         if "PM1.0" in columns:
             while len(sample_PM1)!=5:
                 sample_PM1.append(mean(sample_PM1))
+                if(len(sample_PM1) > 5):
+                    sample_PM1 = sample_PM1[:5]
+                    break
             train_PM1.append(sample_PM1)
         if "PM2.5" in columns:
             while len(sample_PM25)!=5:
                 sample_PM25.append(mean(sample_PM25))
+                if(len(sample_PM25) > 5):
+                    sample_PM25 = sample_PM25[:5]
+                    break
             train_PM25.append(sample_PM25)
         if "PM10" in columns:
             while len(sample_PM10)!=5:
                 sample_PM10.append(mean(sample_PM10))
+                if(len(sample_PM10) > 5):
+                    sample_PM10 = sample_PM10[:5]
+                    break
             train_PM10.append(sample_PM10)
         if "Speed" in columns:
             while len(sample_Speed)!=5:
                 sample_Speed.append(mean(sample_Speed))
+                if(len(sample_Speed) > 5):
+                    sample_Speed = sample_Speed[:5]
+                    break
             train_Speed.append(sample_Speed)
                 
                 

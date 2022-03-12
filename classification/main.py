@@ -39,7 +39,7 @@ consumer_conf = {"bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
                  "value.deserializer": AvroDeserializer(schema_str=None,  # the schema should be fetched from the registry
                                                         schema_registry_client=schema_registry_client
                                                 ),
-                 "group.id": "cccc",
+                 "group.id": "classification6",
                  "auto.offset.reset": "earliest"}
 
 consumer = DeserializingConsumer(consumer_conf)

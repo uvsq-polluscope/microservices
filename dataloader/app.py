@@ -213,9 +213,8 @@ def app():
         db = create_engine(db_string, echo=True)
         ids = pd.read_sql(id_request, db)
         for i in range(0,104):
-            #print(ids.participant_id[i], " ", ids.kit_id[i])
+            print(ids.participant_id[i], " ", ids.kit_id[i])
             original_data = pd.read_sql(increment_ids(ids.kit_id[i],ids.participant_id[i]), db)
-            #print(original_data.columns)
             for ind in original_data.index:
                 #producer.poll(0.0)
                 msg = rawdata(dict(

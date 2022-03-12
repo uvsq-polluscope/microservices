@@ -111,7 +111,6 @@ def data_pre_processing(data,columnNames=["Temperature"],min_threshold={"Tempera
             df_new=pd.merge(df_new,df_PM1,on="time",how="outer")
         
         if len(df.dropna(subset=["PM2.5"]))>0:
-            print("herrrrrr2")
             df_new=pd.merge(df_new,df_PM25,on="time",how="outer")
         
         if len(df.dropna(subset=["PM10"]))>0:
