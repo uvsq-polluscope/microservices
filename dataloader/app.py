@@ -15,6 +15,7 @@ from Polluscope.rawdata import rawdata
 KAFKA_BOOTSTRAP_SERVERS = os.environ['KAFKA_BOOTSTRAP_SERVERS']
 TOPIC_NAME = "rawdata"
 
+
 schema_registry_client = SchemaRegistryClient({"url": os.environ['SCHEMA_REGISTRY_CLIENT']})
 
 # --- Producing part ---

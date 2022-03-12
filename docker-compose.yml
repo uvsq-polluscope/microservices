@@ -1,28 +1,71 @@
 version: "3"
 services:
   preprocessing:
-    build: ./preprocessing_time_series/.
+    build: 
+      context: ./preprocessing_time_series/
+      dockerfile: Dockerfile
     volumes:
-      - .:/code
+      - ./preprocessing_time_series:/code
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=localhost:9092
-      - SCHEMA_REGISTRY_CLIENT=http://localhost:8085
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - SCHEMA_REGISTRY_CLIENT=http://192.168.33.124:8085
     ports:
       - "8001:80"
-  classification:
-    build: ./classification/.
-    environment:
-      - KAFKA_BOOTSTRAP_SERVERS=localhost:9092
-      - SCHEMA_REGISTRY_CLIENT=http://localhost:8085
+    networks:
+      - mynetwork
+  preprocessinggps:
+    build: 
+      context: ./preprocessing_gps/
+      dockerfile: Dockerfile
     volumes:
-      - .:/code
+      - ./preprocessing_gps:/code
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - SCHEMA_REGISTRY_CLIENT=http://192.168.33.124:8085
+    ports:
+      - "8002:80"
+    networks:
+      - mynetwork
+  classification:
+    build: 
+      context: ./classification/
+      dockerfile: Dockerfile
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - SCHEMA_REGISTRY_CLIENT=http://192.168.33.124:8085
+    volumes:
+      - ./classification:/code
     ports:
       - "8000:80"
+    networks:
+      - mynetwork
   dataloader:
-    build: ./dataloader/.
+    build: 
+      context: ./dataloader/
+      dockerfile: Dockerfile
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=localhost:9092
-      - SCHEMA_REGISTRY_CLIENT=http://localhost:8085
-      - DATABASE=postgresql://dwaccount:password@127.0.0.1:5435/dwaccount
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - SCHEMA_REGISTRY_CLIENT=http://192.168.33.124:8085
+      - DATABASE=postgresql://postgres:postgres@192.168.33.124:5435/postgres
     volumes:
-      - .:/code
+      - ./dataloader:/code
+    networks:
+      - mynetwork
+  dataloadergps:
+    build: 
+      context: ./dataloaderGPS/
+      dockerfile: Dockerfile
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - SCHEMA_REGISTRY_CLIENT=http://192.168.33.124:8085
+      - DATABASE=postgresql://postgres:postgres@192.168.33.124:5435/postgres
+    volumes:
+      - ./dataloaderGPS:/code
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
+    external: 
+      name: infrastructure_mynetwork
