@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
 
-""" avro python class for file: Move_Stop_Detection """
+""" avro python class for file: ConsumerRawDataSMD """
 
 import json
-from helpers import default_json_serialize, todict
+from object.helpers import default_json_serialize, todict
 from typing import Union
 
 
-class Move_Stop_Detection(object):
+class ConsumerRawDataSMD(object):
 
     schema = """
     {
         "type": "record",
         "namespace": "Polluscope",
-        "name": "Move_Stop_Detection",
+        "name": "ConsumerRawDataSMD",
         "fields": [
             {
                 "name": "participant_virtual_id",
-                "type": "int"
+                "type": "string"
             },
             {
                 "name": "time",
@@ -33,13 +33,17 @@ class Move_Stop_Detection(object):
             },
             {
                 "name": "hilbert",
-                "type": "float"
+                "type": "int"
+            },
+            {
+                "name": "activity",
+                "type": "string"
             }
         ]
     }
     """
 
-    def __init__(self, obj: Union[str, dict, 'Move_Stop_Detection']) -> None:
+    def __init__(self, obj: Union[str, dict, 'rawdataSMD']) -> None:
         if isinstance(obj, str):
             obj = json.loads(obj)
 
@@ -48,7 +52,7 @@ class Move_Stop_Detection(object):
 
         elif not isinstance(obj, dict):
             raise TypeError(
-                f"{type(obj)} is not in ('str', 'dict', 'Move_Stop_Detection')"
+                f"{type(obj)} is not in ('str', 'dict', 'rawdataSMD')"
             )
 
         self.set_participant_virtual_id(obj.get('participant_virtual_id', None))
@@ -61,17 +65,20 @@ class Move_Stop_Detection(object):
 
         self.set_hilbert(obj.get('hilbert', None))
 
+        self.set_activity(obj.get('activity', None))
+
     def dict(self):
         return todict(self)
 
-    def set_participant_virtual_id(self, value: int) -> None:
+    def set_participant_virtual_id(self, value: str) -> None:
 
-        if isinstance(value, int):
+        if isinstance(value, str):
             self.participant_virtual_id = value
         else:
-            raise TypeError("field 'participant_virtual_id' should be type int")
+            raise TypeError(
+                "field 'participant_virtual_id' should be type str")
 
-    def get_participant_virtual_id(self) -> int:
+    def get_participant_virtual_id(self) -> str:
 
         return self.participant_virtual_id
 
@@ -108,16 +115,27 @@ class Move_Stop_Detection(object):
 
         return self.lon
 
-    def set_hilbert(self, value: float) -> None:
+    def set_hilbert(self, value: int) -> None:
 
-        if isinstance(value, float):
+        if isinstance(value, int):
             self.hilbert = value
         else:
-            raise TypeError("field 'hilbert' should be type float")
+            raise TypeError("field 'hilbert' should be type int")
 
-    def get_hilbert(self) -> float:
+    def get_hilbert(self) -> int:
 
         return self.hilbert
+
+    def set_activity(self, value: str) -> None:
+
+        if isinstance(value, str):
+            self.activity = value
+        else:
+            raise TypeError("field 'activity' should be type str")
+
+    def get_activity(self) -> str:
+
+        return self.activity
 
     def serialize(self) -> None:
         return json.dumps(self, default=default_json_serialize)

@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
-from hilbert_detection import stop_hilbert_vgp
+from hilbert_detection import *
+#from hilbert_detection import stop_hilbert_vgp
 from skmob_detection import stop_skmob
 from utils import precision_recall, splitting_2, splitting2
 from db_connection import *
@@ -119,4 +120,4 @@ important_features = ['speed_p25', 'distance_p90', 'distance_std', 'distance_p75
        'acceleration_min', 'endLon', 'speed_p75', 'speed_p90',
        'bearing_rate_p75', 'selfIntersect', 'target', 'userId', 'time']
 
-#loaded_RF = pickle.load(open('RF_transport_detection.sav', 'rb'))
+loaded_RF = pickle.load(open('/home/amir/Desktop/Projet_Kafka/microservices/stop_move_detection/dependancies/RF_transport_detection.sav', 'rb'))

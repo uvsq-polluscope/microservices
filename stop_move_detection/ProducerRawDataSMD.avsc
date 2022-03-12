@@ -1,0 +1,11 @@
+{
+    "type" : "record",
+    "namespace" : "object",
+    "name" : "ProducerRawDataSMD",
+    "fields" : [
+       { "name" : "participant_virtual_id" , "type" : "string" },
+       { "name" : "time" , "type" : "string" },
+       { "name" : "activity" , "type" : "string" },
+       { "name" : "detected_label" , "type" : "float" }
+    ]
+}
