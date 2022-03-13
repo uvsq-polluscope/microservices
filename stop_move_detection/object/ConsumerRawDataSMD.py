@@ -13,7 +13,7 @@ class ConsumerRawDataSMD(object):
     {
         "type": "record",
         "namespace": "Polluscope",
-        "name": "ConsumerRawDataSMD",
+        "name": "rawdataSMD",
         "fields": [
             {
                 "name": "participant_virtual_id",

@@ -9,8 +9,9 @@ engine = create_engine(
 
 
 def def_stop_move_detection(data):
-    # Pour un seul participant sans passer par des fichiers csv
-    # On calcul les stop detection avec segmented data :
+    # For a single participant_virtual_id :
+    # use segmented_data to retrive movement in instance move and stop evenements in data1
+    participant_virtual_id = data["participant_virtual_id"][0]
     data1, mixed1, moves = segmented_data(
         participant_virtual_id=participant_virtual_id)
     df_stops = data1[data1._stops_ != 1]
@@ -28,8 +29,7 @@ def def_stop_move_detection(data):
     # data_ft['pred']=y_pred
     #df_moves = data_ft[['time', 'userId','target', 'pred']]
 
-    # On concatène df_stops et df_moves
+    # concat df_stops and df_moves to get a single dataframe for post processing
     #df = pd.concat([df_stops,df_moves])
     #df.sort_values(['participant_virtual_id', 'time'],inplace=True)
-
     return df_stops

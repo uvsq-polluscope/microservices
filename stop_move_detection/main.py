@@ -4,7 +4,7 @@ from uuid import uuid4
 from object.helpers import todict
 from object.helpers import default_json_serialize
 from object.ConsumerRawDataSMD import *
-from object.ProducerRawDataSMD import *
+from object.stopMoveDetectionTopic import *
 
 
 from dependancies.stop_move_algo import *
@@ -32,7 +32,7 @@ app = FastAPI()
 
 # kafka consumer config
 KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
-TOPIC_NAME_CONSUME = "ConsumerRawDataSMD"
+TOPIC_NAME_CONSUME = "rawdataSMD"
 
 schema_registry_client = SchemaRegistryClient({"url": "http://localhost:8085"})
 consumer_conf = {"bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
@@ -46,13 +46,13 @@ consumer_conf = {"bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
 consumer = DeserializingConsumer(consumer_conf)
 consumer.subscribe(["rawdataSMD"])
 
-TOPIC_NAME_PRODUCE = "ProducerRawDataSMD"
+TOPIC_NAME_PRODUCE = "stopMoveDetectionTopic"
 
 # --- Producing part ---
 
 producer_conf = {"bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
                  "key.serializer": StringSerializer("utf_8"),
-                 "value.serializer": AvroSerializer(schema_str=ProducerRawDataSMD.schema,
+                 "value.serializer": AvroSerializer(schema_str=stopMoveDetectionTopic.schema,
                                                     schema_registry_client=schema_registry_client,
                                                     to_dict=todict)}
 
@@ -68,15 +68,13 @@ def runing():
 def stop_move_detection_algo():
     # Dict contain data for each participant
     data = {}
-    # Always listening to kafka consumer
-    print(f'Listening to messages on topic {TOPIC_NAME_CONSUME}...')
     while True:
         try:
             try:
-                msg = consumer.poll(1.0)
-            except:
+                msg = consumer.poll(1)
+            except Exception as e:
+                print (e)
                 return "Error: rawdataSMD topic is not created, please create it !"
-
             if msg is None:
                 continue
             message = msg.value()
@@ -93,7 +91,6 @@ def stop_move_detection_algo():
 
             # check if there is enough data to start the pre-processing
             key = rate_done(data)
-
             if (key != "No"):
                 # get dataframe from dictionary values
                 df = get_df(data.get(key))
@@ -108,8 +105,7 @@ def stop_move_detection_algo():
 
                 # save data in kafka topic
                 save_data(df)
-
-        except KeyboardInterrupt:
+        except KeyboardInterrupt as e:
             print(
                 f'Stopped listening to messages on topic {TOPIC_NAME_CONSUME}')
             break
@@ -122,26 +118,23 @@ def stop_move_detection_algo():
 def rate_done(data):
     for key in data.keys():
         if (len(data.get(key)) == 20):
-            print("There is enough data for key " + str(key))
             return key
         else:
             return "No"
 
 
 def save_data(df):
-    print("save_data")
-    print(df)
     if df.empty:
         print("Dataframe is empty, no message to produce !")
     else:
         produced_message_count = 0
         for ind in df.index:
-            msg = ProducerRawDataSMD(dict(
+            msg = stopMoveDetectionTopic(dict(
                 participant_virtual_id=str(
-                    original_data['participant_virtual_id'][ind]),
-                time=str(original_data['time'][ind]),
-                activity=str(original_data['activity'][ind]),
-                detected_label=float(original_data['detected_label'][ind])
+                    df['participant_virtual_id'][ind]),
+                time=str(df['time'][ind]),
+                activity=str(df['activity'][ind]),
+                detected_label=float(df['detected_label'][ind])
             ))
             producer.produce(topic=TOPIC_NAME_PRODUCE,
                              key=str(uuid4()), value=msg)
@@ -162,9 +155,8 @@ def get_df(l):
 def run(df):
     # run stop move detection algorithme
     try:
-        df = def_stop_move_detection(df)
+        df = def_stop_move_detection(df, )
         return df
-        print("OK")
     except Exception as e:
         print(f'erreur in main :{e}')
         return pd.DataFrame()

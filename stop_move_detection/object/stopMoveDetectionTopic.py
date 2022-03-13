@@ -7,13 +7,13 @@ from object.helpers import default_json_serialize, todict
 from typing import Union
 
 
-class ProducerRawDataSMD(object):
+class stopMoveDetectionTopic(object):
 
     schema = """
     {
         "type": "record",
         "namespace": "object",
-        "name": "ProducerRawDataSMD",
+        "name": "stopMoveDetectionTopic",
         "fields": [
             {
                 "name": "participant_virtual_id",
@@ -35,7 +35,7 @@ class ProducerRawDataSMD(object):
     }
     """
 
-    def __init__(self, obj: Union[str, dict, 'ProducerRawDataSMD']) -> None:
+    def __init__(self, obj: Union[str, dict, 'stopMoveDetectionTopic']) -> None:
         if isinstance(obj, str):
             obj = json.loads(obj)
 
@@ -44,7 +44,7 @@ class ProducerRawDataSMD(object):
 
         elif not isinstance(obj, dict):
             raise TypeError(
-                f"{type(obj)} is not in ('str', 'dict', 'ProducerRawDataSMD')"
+                f"{type(obj)} is not in ('str', 'dict', 'stopMoveDetectionTopic')"
             )
 
         self.set_participant_virtual_id(obj.get('participant_virtual_id', None))

@@ -1,7 +1,7 @@
 {
     "type" : "record",
     "namespace" : "object",
-    "name" : "ProducerRawDataSMD",
+    "name" : "stopMoveDetectionTopic",
     "fields" : [
        { "name" : "participant_virtual_id" , "type" : "string" },
        { "name" : "time" , "type" : "string" },
