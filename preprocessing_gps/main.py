@@ -30,7 +30,8 @@ app = FastAPI()
 KAFKA_BOOTSTRAP_SERVERS = os.environ['KAFKA_BOOTSTRAP_SERVERS']
 TOPIC_NAME_CONSUME = "rawdataGPS"
 
-schema_registry_client = SchemaRegistryClient({"url": os.environ['SCHEMA_REGISTRY_CLIENT']})
+schema_registry_client = SchemaRegistryClient(
+    {"url": os.environ['SCHEMA_REGISTRY_CLIENT']})
 consumer_conf = {"bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
                  "key.deserializer": StringDeserializer("utf_8"),
                  "value.deserializer": AvroDeserializer(schema_str=None,  # the schema should be fetched from the registry
@@ -62,7 +63,6 @@ def runing():
     return "Hi preprocessing_gps microservice is running"
 
 
-# Route to call to launch the preprocessing process
 @app.get("/preprocessing_gps")
 def preprocessing_gps():
 
@@ -76,7 +76,7 @@ def preprocessing_gps():
                 msg = consumer.poll(1.0)
             except:
                 return "Error: " + TOPIC_NAME_CONSUME + " topic is not created, please create it !"
-            
+
             if msg is None:
                 continue
             message = msg.value()
@@ -103,7 +103,7 @@ def preprocessing_gps():
                 # run preprocessingGPS algo
                 df = run(df)
 
-                # delete values of this participant from memory
+                # delete values from memory
                 data[key] = []
 
                 # save data in kafka topic
@@ -118,15 +118,16 @@ def preprocessing_gps():
 
     return True
 
+
 # Function that checks if a dictionnary key has enough messages, return the key if it's the case, else return "No"
 def rate_done(data):
     for key in data.keys():
-        # This value can be changed depending on your needs
         if (len(data.get(key)) == 20):
             print("There is enough data for key " + str(key))
             return key
         else:
             return "No"
+
 
 # Function that saves the data by sending the output dataframe to the producer kafka topic
 def save_data(df):
@@ -151,6 +152,7 @@ def save_data(df):
             producer.flush()
         print(f"Produced {produced_message_count} message")
 
+
 # Transform the output of the SQL query to a dataframe
 def get_df(l):
     # from list of object to dataframe
@@ -159,6 +161,7 @@ def get_df(l):
     for elm in l:
         data = data.append(elm.__dict__, ignore_index=True)
     return data
+
 
 # run GPS pre-processing algo
 def run(df):
