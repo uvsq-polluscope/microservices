@@ -72,7 +72,7 @@ def preprocessing_gps():
     while True:
         try:
             try:
-                msg = consumer.poll(1.0)
+                msg = consumer.poll(0.0)
             except:
                 return "Error: rawdataGPS topic is not created, please create it !"
 
