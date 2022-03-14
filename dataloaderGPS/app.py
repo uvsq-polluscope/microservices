@@ -28,17 +28,16 @@ producer_conf = {"bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
 
 producer = SerializingProducer(producer_conf)
 
+# This file is used to load data from database into the specified kafka topic
 def app():
     db_string = os.environ["DATABASE"]
     db = create_engine(db_string, echo=True)
-
-    #original_data = pd.read_sql('''SELECT "tabletPositionApp".id, "participant".participant_virtual_id, "tabletPositionApp".tablet_id, "tabletPositionApp".timestamp, "tabletPositionApp".lat, "tabletPositionApp".lon FROM "tablet","tabletPositionApp","campaignParticipantKit","kit","participant" WHERE "tabletPositionApp"."tablet_id"="kit"."tablet_id" and "kit"."id"="campaignParticipantKit"."kit_id" and "campaignParticipantKit"."participant_id"="participant"."id" and "tabletPositionApp"."timestamp" between "campaignParticipantKit"."start_date" and "campaignParticipantKit"."end_date" and "tabletPositionApp"."tablet_id"="tablet"."id" and "tabletPositionApp".hilbert is null LIMIT 20''', db)
+    # You can change the request and the LIMIT instruction as you want
     original_data = pd.read_sql('''SELECT "tabletPositionApp".id, "participant".participant_virtual_id, "tabletPositionApp".tablet_id, "tabletPositionApp".timestamp, "tabletPositionApp".lat, "tabletPositionApp".lon FROM "tablet","tabletPositionApp","campaignParticipantKit","kit","participant" WHERE "tabletPositionApp"."tablet_id"="kit"."tablet_id" and "kit"."id"="campaignParticipantKit"."kit_id" and "campaignParticipantKit"."participant_id"="participant"."id" and "tabletPositionApp"."timestamp" between "campaignParticipantKit"."start_date" and "campaignParticipantKit"."end_date" and "tabletPositionApp"."tablet_id"="tablet"."id" and "participant".participant_virtual_id = '99999C' LIMIT 20''', db)
 
     print(original_data)
     for ind in original_data.index:
         msg = rawdataGPS(dict(
-            #Handle the case with alphanumeric id_number
             id=int(original_data['id'][ind]),
             participant_virtual_id=str(original_data['participant_virtual_id'][ind]),
             tablet_id=int(original_data['tablet_id'][ind]),
