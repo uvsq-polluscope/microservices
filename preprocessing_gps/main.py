@@ -40,7 +40,7 @@ consumer_conf = {"bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
                  "auto.offset.reset": "earliest"}
 
 consumer = DeserializingConsumer(consumer_conf)
-consumer.subscribe(["rawdataGPS"])
+consumer.subscribe([TOPIC_NAME_CONSUME])
 
 TOPIC_NAME_PRODUCE = "ProducerRawDataGPS"
 
@@ -62,10 +62,11 @@ def runing():
     return "Hi preprocessing_gps microservice is running"
 
 
+# Route to call to launch the preprocessing process
 @app.get("/preprocessing_gps")
 def preprocessing_gps():
 
-    # Dict contain data for each participant
+    # Dict contain data for each participant in the form key : participant_virtual_id and value: messages of this participant
     data = {}
     # Always listening to kafka consumer
     print(f'Listening to messages on topic {TOPIC_NAME_CONSUME}...')
@@ -74,8 +75,8 @@ def preprocessing_gps():
             try:
                 msg = consumer.poll(1.0)
             except:
-                return "Error: rawdataGPS topic is not created, please create it !"
-
+                return "Error: " + TOPIC_NAME_CONSUME + " topic is not created, please create it !"
+            
             if msg is None:
                 continue
             message = msg.value()
@@ -83,7 +84,7 @@ def preprocessing_gps():
             if message is not None:
                 # cast data to consumer object
                 rowdata = ConsumerRawDataGPS(message)
-                # check if get_participant_virtual_id exists in dictionary else create it
+                # check if the participant_virtual_id exists in dictionary else create an entry
                 if rowdata.get_participant_virtual_id() in data.keys():
                     data.get(rowdata.get_participant_virtual_id()
                              ).append(rowdata)
@@ -102,7 +103,7 @@ def preprocessing_gps():
                 # run preprocessingGPS algo
                 df = run(df)
 
-                # delete values from memory
+                # delete values of this participant from memory
                 data[key] = []
 
                 # save data in kafka topic
@@ -117,16 +118,17 @@ def preprocessing_gps():
 
     return True
 
-
+# Function that checks if a dictionnary key has enough messages, return the key if it's the case, else return "No"
 def rate_done(data):
     for key in data.keys():
+        # This value can be changed depending on your needs
         if (len(data.get(key)) == 20):
             print("There is enough data for key " + str(key))
             return key
         else:
             return "No"
 
-
+# Function that saves the data by sending the output dataframe to the producer kafka topic
 def save_data(df):
     print("save_data")
     print(df)
@@ -149,7 +151,7 @@ def save_data(df):
             producer.flush()
         print(f"Produced {produced_message_count} message")
 
-
+# Transform the output of the SQL query to a dataframe
 def get_df(l):
     # from list of object to dataframe
     data = pd.DataFrame(
@@ -158,9 +160,8 @@ def get_df(l):
         data = data.append(elm.__dict__, ignore_index=True)
     return data
 
-
+# run GPS pre-processing algo
 def run(df):
-    # run GPS pre-processing algo
     try:
         df = data_pre_processing_gps(df)
         return df
