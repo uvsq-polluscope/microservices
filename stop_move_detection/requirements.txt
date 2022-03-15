@@ -26,7 +26,6 @@ backports-zoneinfo
 pbr
 helpdev
 pathlib
-msilib
 findspark
 pywt
 PyWavelets
