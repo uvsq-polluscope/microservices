@@ -44,7 +44,7 @@ consumer_conf = {"bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
                  "auto.offset.reset": "earliest"}
 
 consumer = DeserializingConsumer(consumer_conf)
-consumer.subscribe(["rawdataSMD"])
+consumer.subscribe(["ProducerRawDataGPS"])
 
 TOPIC_NAME_PRODUCE = "stopMoveDetectionTopic"
 
@@ -81,6 +81,7 @@ def stop_move_detection_algo():
             message = msg.value()
 
             if message is not None:
+                print("Creating message")
                 # cast data to consumer object
                 rowdata = ConsumerRawDataSMD(message)
                 # check if get_participant_virtual_id exists in dictionary else create it
@@ -107,6 +108,7 @@ def stop_move_detection_algo():
                 data[key] = []
 
                 # save data in kafka topic
+                print("saving data to kafka topic")
                 save_data(df)
         except KeyboardInterrupt as e:
             print(e)
