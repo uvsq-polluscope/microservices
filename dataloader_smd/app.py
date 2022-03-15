@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from uuid import uuid4
 
@@ -12,10 +13,10 @@ from confluent_kafka.serialization import StringDeserializer, StringSerializer
 from helpers import todict
 from Polluscope.rawdataSMD import rawdataSMD
 
-KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
+KAFKA_BOOTSTRAP_SERVERS = os.environ['KAFKA_BOOTSTRAP_SERVERS']
 TOPIC_NAME = "rawdataSMD"
 
-schema_registry_client = SchemaRegistryClient({"url": "http://localhost:8085"})
+schema_registry_client = SchemaRegistryClient({"url": os.environ['SCHEMA_REGISTRY_CLIENT']})
 
 # --- Producing part ---
 
