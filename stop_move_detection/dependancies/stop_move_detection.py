@@ -10,7 +10,7 @@ import dependancies.Trajectory as tr
 from dependancies.TrajectoryDescriptor import *
 from sklearn.ensemble import RandomForestClassifier
 import pickle
-
+import os
 
 #participants = pd.read_csv('../list_participants.csv', infer_datetime_format=True, parse_dates=[3,4])
 
@@ -134,4 +134,4 @@ important_features = ['speed_p25', 'distance_p90', 'distance_std', 'distance_p75
                       'bearing_rate_p75', 'selfIntersect', 'target', 'userId', 'time']
 
 loaded_RF = pickle.load(open(
-    'RF_transport_detection.sav', 'rb'))
+    os.getcwd() + 'RF_transport_detection.sav', 'rb'))
