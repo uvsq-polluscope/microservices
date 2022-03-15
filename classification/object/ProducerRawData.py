@@ -13,7 +13,7 @@ class ProducerRawData(object):
     {
         "type": "record",
         "namespace": "object",
-        "name": "ProducerRawData",
+        "name": "classificationTopic",
         "fields": [
             {
                 "name": "participant_virtual_id",

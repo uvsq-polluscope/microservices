@@ -1,7 +1,6 @@
 #!/bin/bash
 
 echo "Starting containers"
-ssh root@192.168.33.124 'cd projet-M2-Datascale/microservices && docker-compose down'
 ssh root@192.168.33.124 'cd projet-M2-Datascale/microservices && docker-compose up -d'
 
 sleep 5
@@ -18,3 +17,6 @@ sleep 5
 echo "Starting time series classfication"
 curl -X GET 192.168.33.124:8000/classification &
 sleep 5
+
+echo "Enabling controllers"
+cd ../Infrastructure/connector && ./start.sh
