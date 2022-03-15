@@ -1,22 +1,20 @@
 #!/bin/bash
 
 echo "Starting containers"
-docker-compose up -d 
+ssh root@192.168.33.124 'cd projet-M2-Datascale/microservices && docker-compose down'
+ssh root@192.168.33.124 'cd projet-M2-Datascale/microservices && docker-compose up -d'
 
-sleep 30 
+sleep 5
 
 echo "Starting microservices"
 echo "Starting time series pre processing"
-curl +X GET 192.168.33.124:8001/preprocessing
-sleep 10
-curl +X GET 192.168.33.124:8002/preprocessing
+curl -X GET 192.168.33.124:8001/preprocessing &
+sleep 5
 
 echo "Starting GPS data pre processing"
-curl +X GET 192.168.33.124:8002/preprocessing_gps
-sleep 10
-curl +X GET 192.168.33.124:8002/preprocessing_gps
+curl -X GET 192.168.33.124:8002/preprocessing_gps &
+sleep 5
 
 echo "Starting time series classfication"
-curl +X GET 192.168.33.124:8000/classification
-sleep 10
-curl +X GET 192.168.33.124:8000/classification
+curl -X GET 192.168.33.124:8000/classification &
+sleep 5
