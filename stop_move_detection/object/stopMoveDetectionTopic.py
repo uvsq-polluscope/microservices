@@ -29,8 +29,24 @@ class stopMoveDetectionTopic(object):
             },
             {
                 "name": "detected_label",
-                "type": "float"
-            }           
+                "type": "string"
+            },
+            {
+                "name": "userId",
+                "type": "string"
+            } ,
+            {
+                "name": "target",
+                "type": "string"
+            },
+            {
+                "name": "pred",
+                "type": "string"
+            },
+            {
+                "name": "prediction",
+                "type": "string"
+            }
         ]
     }
     """
@@ -54,6 +70,14 @@ class stopMoveDetectionTopic(object):
         self.set_activity(obj.get('activity', None))
 
         self.set_detected_label(obj.get('detected_label', None))
+        
+        self.set_userId(obj.get('userId', None))
+
+        self.set_target(obj.get('target', None))
+
+        self.set_pred(obj.get('pred', None))
+
+        self.set_prediction(obj.get('prediction', None))
 
     def dict(self):
         return todict(self)
@@ -63,7 +87,7 @@ class stopMoveDetectionTopic(object):
         if isinstance(value, str):
             self.participant_virtual_id = value
         else:
-            raise TypeError("field 'participant_virtual_id' should be type int")
+            raise TypeError("field 'participant_virtual_id' should be type str")
 
     def get_participant_virtual_id(self) -> str:
 
@@ -91,16 +115,60 @@ class stopMoveDetectionTopic(object):
 
         return self.activity
 
-    def set_detected_label(self, value: float) -> None:
+    def set_detected_label(self, value: str) -> None:
 
-        if isinstance(value, float):
+        if isinstance(value, str):
             self.detected_label = value
         else:
-            raise TypeError("field 'detected_label' should be type float")
+            raise TypeError("field 'detected_label' should be type str")
 
-    def get_detected_label(self) -> float:
+    def get_detected_label(self) -> str:
 
         return self.detected_label
+
+    def set_userId(self, value: str) -> None:
+
+        if isinstance(value, str):
+            self.userId = value
+        else:
+            raise TypeError("field 'userId' should be type string")
+
+    def get_userId(self) -> str:
+
+        return self.userId 
+
+    def set_target(self, value: str) -> None:
+
+        if isinstance(value, str):
+            self.target = value
+        else:
+            raise TypeError("field 'target' should be type string")
+
+    def get_pred(self) -> str:
+
+        return self.pred
+
+    def set_pred(self, value: str) -> None:
+
+        if isinstance(value, str):
+            self.pred = value
+        else:
+            raise TypeError("field 'pred' should be type str")
+
+    def get_pred(self) -> str:
+
+        return self.pred
+
+    def set_prediction(self, value: str) -> None:
+
+        if isinstance(value, str):
+            self.prediction = value
+        else:
+            raise TypeError("field 'prediction' should be type string")
+
+    def get_prediction(self) -> str:
+
+        return self.prediction
 
     def serialize(self) -> None:
         return json.dumps(self, default=default_json_serialize)

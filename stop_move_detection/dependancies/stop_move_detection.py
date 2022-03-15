@@ -17,7 +17,7 @@ import pickle
 #participant_virtual_ids = participants.participant_virtual_id.unique()
 
 
-def segmented_data(participant_virtual_id=9999915):
+def segmented_data(participant_virtual_id):
 
     df_hilbert = stop_hilbert_vgp(
         participant_virtual_id=participant_virtual_id)
@@ -67,7 +67,7 @@ def segmented_data(participant_virtual_id=9999915):
     return data, mixed, moves
 
 
-def get_features(df, participant_virtual_id=9999915):
+def get_features(df, participant_virtual_id):
 
     df.set_index('time', inplace=True)
 
@@ -134,4 +134,4 @@ important_features = ['speed_p25', 'distance_p90', 'distance_std', 'distance_p75
                       'bearing_rate_p75', 'selfIntersect', 'target', 'userId', 'time']
 
 loaded_RF = pickle.load(open(
-    '/Users/juliendaurat/Documents/Projet/Projet kafka/microservices/stop_move_detection/dependancies/RF_transport_detection.sav', 'rb'))
+    '/home/amir/Desktop/Projet_Kafka/microservices/stop_move_detection/dependancies/RF_transport_detection.sav', 'rb'))

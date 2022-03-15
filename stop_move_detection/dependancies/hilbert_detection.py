@@ -11,7 +11,7 @@ from dependancies.db_connection import get_gps_hilbert, get_gps_hilbert_vgp
 
 
 # In[7]:
-def stop_hilbert(participant_virtual_id=987014104, density_threshold=100, hilbert_power=3, merge_min=2):
+def stop_hilbert(participant_virtual_id, density_threshold=100, hilbert_power=3, merge_min=2):
 
     df = get_gps_hilbert(participant_virtual_id=participant_virtual_id)
 
@@ -74,7 +74,7 @@ def stop_hilbert(participant_virtual_id=987014104, density_threshold=100, hilber
 # In[8]
 
 
-def stop_hilbert_vgp(participant_virtual_id=9999941, density_threshold=100, hilbert_power=3, merge_min=2):
+def stop_hilbert_vgp(participant_virtual_id, density_threshold=100, hilbert_power=3, merge_min=2):
 
     df = get_gps_hilbert_vgp(participant_virtual_id=participant_virtual_id)
 

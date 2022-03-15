@@ -93,7 +93,7 @@ class Trajectory:
         # other = [self.isInValid, self.isPure, self.stat_label()]
 
         # return self.distance_features + self.speed_features + self.acc_features + self.bearing_features + self.jerk_features + self.brate_features + self.brate_rate_features + other
-        self.descriptor = TrajectoryDescriptor.TrajectoryDescriptor(
+        self.descriptor = dependancies.TrajectoryDescriptor.TrajectoryDescriptor(
             trajectory=self.raw_data, labels=self.labels, stop_parameters=self.stop_parameters)
         ret = self.descriptor.describe()
         return ret
@@ -373,7 +373,7 @@ class Trajectory:
     def point_features(self, smooth_=True, sgn_=False):
         smooth_ = False
 
-        tf = TrajectoryFeatures.TrajectoryFeatures(trajectory=self.raw_data, labels=self.labels, smooth=smooth_,
+        tf = dependancies.TrajectoryFeatures.TrajectoryFeatures(trajectory=self.raw_data, labels=self.labels, smooth=smooth_,
                                                    sgn=sgn_)
 
         self.raw_data = tf.row_data

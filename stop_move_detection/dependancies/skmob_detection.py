@@ -14,7 +14,7 @@ from skmob.preprocessing import clustering
 
 
 # In[7]:
-def stop_skmob(participant_virtual_id=987014104, stop_radius_factor=0.2,
+def stop_skmob(participant_virtual_id, stop_radius_factor=0.2,
                minutes_for_a_stop=10.0, no_data_for_minutes=600, cluster_radius_km=0.1):
 
     df = get_gps(participant_virtual_id=participant_virtual_id)
@@ -61,7 +61,7 @@ def stop_skmob(participant_virtual_id=987014104, stop_radius_factor=0.2,
 # In[8]
 
 
-def stop_skmob_2(participant_virtual_id=987014104, max_speed_kmh=100., stop_radius_factor=0.2,
+def stop_skmob_2(participant_virtual_id, max_speed_kmh=100., stop_radius_factor=0.2,
                  minutes_for_a_stop=10.0, no_data_for_minutes=600, cluster_radius_km=0.1):
 
     df = get_gps_2(participant_virtual_id=participant_virtual_id)

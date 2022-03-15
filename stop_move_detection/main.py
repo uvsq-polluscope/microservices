@@ -66,6 +66,7 @@ def runing():
 
 @app.get("/stop_move_detection_algo")
 def stop_move_detection_algo():
+    print("START stop_move_detection_algo ")
     # Dict contain data for each participant
     data = {}
     while True:
@@ -100,18 +101,21 @@ def stop_move_detection_algo():
                 # run stop move detection algorithme
                 df = run(df)
 
+                print(df)
+
                 # delete values from memory
                 data[key] = []
 
                 # save data in kafka topic
                 save_data(df)
         except KeyboardInterrupt as e:
+            print(e)
             print(
                 f'Stopped listening to messages on topic {TOPIC_NAME_CONSUME}')
             break
 
     consumer.close()
-
+    print("END stop_move_detection_algo ")
     return True
 
 
@@ -124,6 +128,10 @@ def rate_done(data):
 
 
 def save_data(df):
+    print("START save_data ")
+    print("DF =======================================")
+    print(df)
+
     if df.empty:
         print("Dataframe is empty, no message to produce !")
     else:
@@ -134,13 +142,19 @@ def save_data(df):
                     df['participant_virtual_id'][ind]),
                 time=str(df['time'][ind]),
                 activity=str(df['activity'][ind]),
-                detected_label=float(df['detected_label'][ind])
+                detected_label=str(df['detected_label'][ind]),
+                userId=str(df['userId'][ind]),
+                target=str(df['target'][ind]),
+                pred=str(df['pred'][ind]),
+                prediction=str(df['prediction'][ind])
             ))
+            #print(msg.dict())
             producer.produce(topic=TOPIC_NAME_PRODUCE,
                              key=str(uuid4()), value=msg)
             produced_message_count += 1
             producer.flush()
         print(f"Produced {produced_message_count} message")
+    print("END save_data ")
 
 
 def get_df(l):
@@ -155,7 +169,7 @@ def get_df(l):
 def run(df):
     # run stop move detection algorithme
     try:
-        df = def_stop_move_detection(df, )
+        df = def_stop_move_detection(df)
         return df
     except Exception as e:
         print(f'erreur in main :{e}')

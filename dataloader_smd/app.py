@@ -31,7 +31,7 @@ def app():
     db_string = "postgresql://dwaccount:password@127.0.0.1:5435/dwaccount"
     db = create_engine(db_string, echo=True)
 
-    original_data = pd.read_sql('SELECT participant_virtual_id, time, lat, lon, hilbert, activity FROM clean_gps_with_activity limit 10', db)
+    original_data = pd.read_sql('SELECT participant_virtual_id, time, lat, lon, hilbert, activity FROM clean_gps_with_activity limit 20', db)
     print(original_data)
     for ind in original_data.index:
         msg = rawdataSMD(dict(
