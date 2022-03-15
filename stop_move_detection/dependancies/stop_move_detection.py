@@ -134,4 +134,4 @@ important_features = ['speed_p25', 'distance_p90', 'distance_std', 'distance_p75
                       'bearing_rate_p75', 'selfIntersect', 'target', 'userId', 'time']
 
 loaded_RF = pickle.load(open(
-    '/home/amir/Desktop/Projet_Kafka/microservices/stop_move_detection/dependancies/RF_transport_detection.sav', 'rb'))
+    './RF_transport_detection.sav', 'rb'))
