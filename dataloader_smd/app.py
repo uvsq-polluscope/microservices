@@ -29,7 +29,7 @@ producer_conf = {"bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
 producer = SerializingProducer(producer_conf)
 
 def app():
-    db_string = "postgresql://dwaccount:password@127.0.0.1:5435/dwaccount"
+    db_string = os.environ["DATABASE"]
     db = create_engine(db_string, echo=True)
 
     original_data = pd.read_sql('SELECT participant_virtual_id, time, lat, lon, hilbert, activity FROM clean_gps_with_activity limit 20', db)
