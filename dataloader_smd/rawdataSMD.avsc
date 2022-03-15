@@ -1,0 +1,13 @@
+{
+    "type" : "record",
+    "namespace" : "Polluscope",
+    "name" : "rawdataSMD",
+    "fields" : [
+       { "name" : "participant_virtual_id" , "type" : "string" },
+       { "name" : "time" , "type" : "string" },
+       { "name" : "lat" , "type" : "float" },
+       { "name" : "lon" , "type" : "float" },
+       { "name" : "hilbert" , "type" : "int" },
+       { "name" : "activity" , "type" : "string" }
+    ]
+}

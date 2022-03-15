@@ -1,0 +1,15 @@
+{
+    "type" : "record",
+    "namespace" : "object",
+    "name" : "stopMoveDetectionTopic",
+    "fields" : [
+       { "name" : "participant_virtual_id" , "type" : "string" },
+       { "name" : "time" , "type" : "string" },
+       { "name" : "activity" , "type" : "string" },
+       { "name" : "detected_label" , "type" : "float" },
+       { "name" : "userId" , "type" : "string" },
+       { "name" : "target" , "type" : "string" },
+       { "name" : "pred" , "type" : "float" },
+       { "name" : "prediction" , "type" : "string" }
+    ]
+}
