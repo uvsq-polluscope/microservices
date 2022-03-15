@@ -27,5 +27,4 @@ pbr
 helpdev
 pathlib
 findspark
-pywt
 PyWavelets
