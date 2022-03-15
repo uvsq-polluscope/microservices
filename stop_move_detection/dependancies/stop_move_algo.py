@@ -6,7 +6,7 @@ from dependancies.stop_move_detection import *
 from dependancies.TrajectoryFeatures import *
 
 engine = create_engine(
-    'postgresql://dwaccount:password@127.0.0.1:5435/dwaccount')
+    'postgresql://postgres:postgres@192.168.33.124:5435/postgres')
 
 
 def def_stop_move_detection(data):    
