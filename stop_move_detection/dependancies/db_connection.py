@@ -25,7 +25,7 @@ pd.options.mode.chained_assignment = None
 # engine = create_engine(''postgresql://dwaccount:password@127.0.0.1:5435/'+"RECORD2")
 # engine_vgp = create_engine('postgresql://dwaccount:password@127.0.0.1:5435/'+"VGP")
 
-url_original_data='postgresql://dwaccount:password@127.0.0.1:5435/dwaccount'
+url_original_data='postgresql://postgres:postgres@192.168.33.124:5435/postgres'
 
 # engine_processed = create_engine(''postgresql://dwaccount:password@127.0.0.1:5435/'+"processed_data")
 # engine_vgp = create_engine('postgresql://postgres:postgres@localhost:5432/'+"VGP")
