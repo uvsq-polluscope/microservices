@@ -148,7 +148,7 @@ def save_data(df):
                 pred=str(df['pred'][ind]),
                 prediction=str(df['prediction'][ind])
             ))
-            #print(msg.dict())
+            print(msg.dict())
             producer.produce(topic=TOPIC_NAME_PRODUCE,
                              key=str(uuid4()), value=msg)
             produced_message_count += 1
