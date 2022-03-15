@@ -28,3 +28,4 @@ helpdev
 pathlib
 findspark
 PyWavelets
+scikit-mobility
